@@ -7,7 +7,7 @@
     "start:dev": "nodemon",
     "test": "jest --watch",
     "build": "tsc",
-    "start": "yarn build && NODE_ENV=production node -r dotenv/config dist/server"
+    "start": "NODE_ENV=production node dist/server"
   },
   "dependencies": {
     "bufferutil": "^4.0.3",
