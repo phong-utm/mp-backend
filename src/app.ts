@@ -1,25 +1,24 @@
 import express from "express"
-// import bodyParser from "body-parser"
 import cors from "cors"
 
 import createRouter from "./routes"
 import DataPush from "./services/interfaces/DataPush"
 import PubSub from "./services/interfaces/PubSub"
 import TripsTracker from "./services/TripsTracker"
-import RouteRepository from "./domain/interfaces/RouteRepository"
+import OperationalDAOFactory from "./services/interfaces/dao/OperationalDAOFactory"
 
 export default function createApp(
   pubsub: PubSub,
   dataPush: DataPush,
-  routeRepo: RouteRepository
+  operationalDb: OperationalDAOFactory
 ) {
   const app = express()
 
   app.use(cors())
   app.use(express.json())
-  app.use(createRouter(pubsub, routeRepo))
+  app.use(createRouter(pubsub, operationalDb))
 
-  const tripsTracker = new TripsTracker(pubsub, routeRepo)
+  const tripsTracker = new TripsTracker(pubsub, operationalDb)
 
   pubsub.onLocationUpdated((evt) => {
     dataPush.pushLocation(evt.tripId, evt.location)

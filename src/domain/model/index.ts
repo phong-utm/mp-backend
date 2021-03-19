@@ -38,3 +38,10 @@ export interface RouteData {
   destination: string
   links: LinkData[]
 }
+
+export class TripLink {
+  travelledTime?: number
+  estimatedTime?: number
+
+  constructor(readonly tripId: TripId, readonly linkId: string) {}
+}

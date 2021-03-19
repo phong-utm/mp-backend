@@ -2,17 +2,17 @@ import express from "express"
 
 import { TripId } from "../domain/model"
 import PubSub, { LocationUpdatedEvent } from "../services/interfaces/PubSub"
-import RouteRepository from "../domain/interfaces/RouteRepository"
+import OperationalDAOFactory from "../services/interfaces/dao/OperationalDAOFactory"
 
 export default function createRouter(
   pubsub: PubSub,
-  routeRepo: RouteRepository
+  operationalDb: OperationalDAOFactory
 ) {
   const router = express.Router()
 
   router.get("/routes/:route", async function (req, res) {
     const routeId = req.params["route"]
-    const routeData = await routeRepo.findById(routeId)
+    const routeData = await operationalDb.getRouteDAO().findById(routeId)
     if (!routeData) {
       res.sendStatus(404)
     } else {

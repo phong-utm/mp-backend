@@ -1,12 +1,16 @@
 import PubSub from "./interfaces/PubSub"
 import TripProgress from "../domain/TripProgress"
-import { Coordinates, TripId } from "../domain/model"
-import RouteRepository from "../domain/interfaces/RouteRepository"
+import { Coordinates, TripId, TripLink } from "../domain/model"
+import RouteDAO from "./interfaces/dao/RouteDAO"
+import OperationalDAOFactory from "./interfaces/dao/OperationalDAOFactory"
 
 export default class TripsTracker {
   private tripProgressById = new Map<TripId, TripProgress>()
 
-  constructor(private pubsub: PubSub, private routeRepo: RouteRepository) {}
+  constructor(
+    private pubsub: PubSub,
+    private operationalDb: OperationalDAOFactory
+  ) {}
 
   async updateLocation(tripId: TripId, location: Coordinates, time: Date) {
     const progress = await this.initOrUpdateTripProgress(tripId, location, time)
@@ -17,8 +21,11 @@ export default class TripsTracker {
       this.tripProgressById.delete(tripId)
     } else if (progress.currentLink.isEnded) {
       const { linkId, travelledTime } = progress.currentLink
-      // TODO: emit "LinkEnded"
-      console.log(`${linkId} travelled time: ${travelledTime / 1000}`)
+
+      // save link travelled time into database
+      const record = new TripLink(tripId, linkId)
+      record.travelledTime = travelledTime
+      await this.operationalDb.getTripLinkDAO().add(record)
     } else {
       const { travelledTime, remainingDistance } = progress.currentLink
       // TODO: emit "MidLink"
@@ -40,7 +47,9 @@ export default class TripsTracker {
     if (prevProgress) {
       progress = prevProgress.proceedTo(location, time)
     } else {
-      const routeData = await this.routeRepo.findById(tripId.routeId)
+      const routeData = await this.operationalDb
+        .getRouteDAO()
+        .findById(tripId.routeId)
       progress = new TripProgress(routeData!, time)
     }
 
