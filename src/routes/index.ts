@@ -2,11 +2,11 @@ import express from "express"
 
 import { TripId } from "../domain/model"
 import PubSub, { LocationUpdatedEvent } from "../services/interfaces/PubSub"
-import OperationalDAOFactory from "../services/interfaces/dao/OperationalDAOFactory"
+import OperationalDbContext from "../services/interfaces/dao/OperationalDbContext"
 
 export default function createRouter(
   pubsub: PubSub,
-  operationalDb: OperationalDAOFactory
+  operationalDb: OperationalDbContext
 ) {
   const router = express.Router()
 

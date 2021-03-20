@@ -1,15 +1,14 @@
 import PubSub from "./interfaces/PubSub"
 import TripProgress from "../domain/TripProgress"
 import { Coordinates, TripId, TripLink } from "../domain/model"
-import RouteDAO from "./interfaces/dao/RouteDAO"
-import OperationalDAOFactory from "./interfaces/dao/OperationalDAOFactory"
+import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
 
 export default class TripsTracker {
   private tripProgressById = new Map<TripId, TripProgress>()
 
   constructor(
     private pubsub: PubSub,
-    private operationalDb: OperationalDAOFactory
+    private operationalDb: OperationalDbContext
   ) {}
 
   async updateLocation(tripId: TripId, location: Coordinates, time: Date) {
@@ -24,7 +23,7 @@ export default class TripsTracker {
 
       // save link travelled time into database
       const record = new TripLink(tripId, linkId)
-      record.travelledTime = travelledTime
+      record.travelledTime = Math.round(travelledTime / 1000)
       await this.operationalDb.getTripLinkDAO().add(record)
     } else {
       const { travelledTime, remainingDistance } = progress.currentLink
@@ -50,6 +49,7 @@ export default class TripsTracker {
       const routeData = await this.operationalDb
         .getRouteDAO()
         .findById(tripId.routeId)
+
       progress = new TripProgress(routeData!, time)
     }
 

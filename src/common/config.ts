@@ -9,6 +9,12 @@ function getRequiredParam(param: string) {
 const config = {
   env: process.env.NODE_ENV || "development",
   port: parseInt(getRequiredParam("PORT")),
+  operationalDb: {
+    host: getRequiredParam("OPERATIONAL_DB_HOST"),
+    name: getRequiredParam("OPERATIONAL_DB_NAME"),
+    user: getRequiredParam("OPERATIONAL_DB_USER"),
+    password: getRequiredParam("OPERATIONAL_DB_PASSWORD"),
+  },
 }
 
 export default config

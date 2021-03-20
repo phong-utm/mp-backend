@@ -5,12 +5,12 @@ import createRouter from "./routes"
 import DataPush from "./services/interfaces/DataPush"
 import PubSub from "./services/interfaces/PubSub"
 import TripsTracker from "./services/TripsTracker"
-import OperationalDAOFactory from "./services/interfaces/dao/OperationalDAOFactory"
+import OperationalDbContext from "./services/interfaces/dao/OperationalDbContext"
 
 export default function createApp(
   pubsub: PubSub,
   dataPush: DataPush,
-  operationalDb: OperationalDAOFactory
+  operationalDb: OperationalDbContext
 ) {
   const app = express()
 
