@@ -6,7 +6,7 @@ interface TripLinkAttributes {
   travelledTime: number
 }
 
-export type TripLinkSequelizeModel = ModelCtor<Model<TripLinkAttributes>>
+export type TripLinkDbModel = ModelCtor<Model<TripLinkAttributes>>
 
 export function defineTripLinkModel(sequelize: Sequelize) {
   return sequelize.define<Model<TripLinkAttributes>>(
@@ -14,11 +14,13 @@ export function defineTripLinkModel(sequelize: Sequelize) {
     {
       tripId: {
         type: DataTypes.STRING,
-        allowNull: false,
+        // allowNull: false,
+        primaryKey: true,
       },
       linkId: {
         type: DataTypes.STRING,
-        allowNull: false,
+        // allowNull: false,
+        primaryKey: true,
       },
       travelledTime: {
         type: DataTypes.INTEGER,
@@ -26,7 +28,8 @@ export function defineTripLinkModel(sequelize: Sequelize) {
       },
     },
     {
-      freezeTableName: true,
+      timestamps: false,
+      // freezeTableName: true,
     }
   )
 }

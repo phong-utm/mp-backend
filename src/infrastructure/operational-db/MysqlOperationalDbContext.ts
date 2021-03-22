@@ -6,20 +6,20 @@ import RouteDAO from "../../services/interfaces/dao/RouteDAO"
 import TripLinkDAO from "../../services/interfaces/dao/TripLinkDAO"
 import RouteDAOImpl from "./RouteDAOImpl"
 import TripLinkDAOImpl from "./TripLinkDAOImpl"
-import { defineTripLinkModel, TripLinkSequelizeModel } from "./models/TripLink"
+import { defineTripLinkModel, TripLinkDbModel } from "./models/TripLinkDbModel"
 
 const { host, name: dbName, user, password } = config.operationalDb
 
 export default class MysqlOperationalDbContext implements OperationalDbContext {
   private sequelize: Sequelize
-  private TripLinkModel: TripLinkSequelizeModel
+  private tripLinkModel: TripLinkDbModel
 
   constructor() {
     this.sequelize = new Sequelize(dbName, user, password, {
       host,
       dialect: "mysql",
     })
-    this.TripLinkModel = defineTripLinkModel(this.sequelize)
+    this.tripLinkModel = defineTripLinkModel(this.sequelize)
   }
 
   async sync() {
@@ -31,6 +31,6 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
   }
 
   getTripLinkDAO(): TripLinkDAO {
-    return new TripLinkDAOImpl(this.TripLinkModel)
+    return new TripLinkDAOImpl(this.tripLinkModel)
   }
 }
