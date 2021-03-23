@@ -1,8 +1,8 @@
-import { TripId, Coordinates } from "../../domain/model"
+import { Coordinates } from "../../domain/model"
 
 export class LocationUpdatedEvent {
   constructor(
-    readonly tripId: TripId,
+    readonly tripId: string,
     readonly location: Coordinates,
     readonly time: Date
   ) {}

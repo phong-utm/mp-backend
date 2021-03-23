@@ -1,6 +1,6 @@
-import { BusLocation, ETA, TripId } from "../../domain/model"
+import { Coordinates, ETA } from "../../domain/model"
 
 export default interface DataPush {
-  pushLocation(tripId: TripId, location: BusLocation): void
-  pushETAs(tripId: TripId, arrival: ETA[]): void
+  pushLocation(tripId: string, location: Coordinates): void
+  pushETAs(tripId: string, arrival: ETA[]): void
 }

@@ -18,77 +18,78 @@ class LinkProgress {
 }
 
 export default class TripProgress {
-  readonly currentLink: LinkProgress
-  readonly isEnded: boolean
+  // readonly currentLink: LinkProgress | null
+  // readonly isEnded: boolean
 
   constructor(
     private routeData: RouteData,
-    // initLocation: Coordinates,
-    private startedAt: Date,
-    currentLink?: LinkProgress,
-    isTripEnded?: boolean
-  ) {
-    this.isEnded = isTripEnded ?? false
-    this.currentLink =
-      currentLink ??
-      new LinkProgress(
-        routeData.links[0].id,
-        startedAt,
-        0, // travelled time
-        0, // travelled distance
-        routeData.links[0].length, // remaining distance
-        false // is ended?
-      )
-  }
+    readonly currentLink: LinkProgress | null = null,
+    readonly isEnded: boolean = false
+  ) {}
 
-  proceedTo(location: Coordinates, time: Date): TripProgress {
-    return this.currentLink.isEnded
+  proceedTo(location: Coordinates, time: Date) {
+    return !this.currentLink
+      ? this.startTrip(time)
+      : this.currentLink.isEnded
       ? this.proceedToNextLink(time)
       : this.proceedOnCurrentLink(location, time)
   }
 
+  private startTrip(time: Date) {
+    const linkProgress = new LinkProgress(
+      this.routeData.links[0].id,
+      time, // started at
+      0, // travelled time
+      0, // travelled distance
+      this.routeData.links[0].length, // remaining distance
+      false // is ended?
+    )
+    return new TripProgress(this.routeData, linkProgress)
+  }
+
   // prettier-ignore
-  private proceedOnCurrentLink(location: Coordinates, time: Date): TripProgress {
+  private proceedOnCurrentLink(location: Coordinates, time: Date) {
     const linkData = this.getCurrentLinkData()!
-    const travelledTime = time.getTime() - this.currentLink.startedAt.getTime()
+    const travelledTime = time.getTime() - this.currentLink!.startedAt.getTime()
     const travelledDistance = calculateTravelledDistance(linkData, location)
     const remainingDistance = linkData.length - travelledDistance
     const isLinkEnded = isEndOfLink(linkData, location)
     const isTripEnded = isLinkEnded && this.isFinalLink()
 
     const linkProgress = new LinkProgress(
-      this.currentLink.linkId,
-      this.currentLink.startedAt,
+      this.currentLink!.linkId,
+      this.currentLink!.startedAt,
       travelledTime,
       travelledDistance,
       remainingDistance,
       isLinkEnded
     )
     // prettier-ignore
-    return new TripProgress(this.routeData, this.startedAt, linkProgress, isTripEnded)
+    return new TripProgress(this.routeData, linkProgress, isTripEnded)
   }
 
-  private proceedToNextLink(time: Date): TripProgress {
+  private proceedToNextLink(time: Date) {
     const nextLinkData = this.getNextLinkData()!
-    const dwellTimeAtStop = time.getTime() - this.currentLink.endedAt!.getTime()
+    const dwellTimeAtStop =
+      time.getTime() - this.currentLink!.endedAt!.getTime()
     const linkProgress = new LinkProgress(
       nextLinkData.id,
-      this.currentLink.endedAt!, // startedAt,
+      this.currentLink!.endedAt!, // startedAt,
       dwellTimeAtStop, // travelledTime
       0, // travelledDistance
       nextLinkData.length, // remainingDistance,
       false // isLinkEnded
     )
-    return new TripProgress(this.routeData, this.startedAt, linkProgress)
+    return new TripProgress(this.routeData, linkProgress)
   }
 
   private getCurrentLinkData() {
-    return this.routeData.links.find((l) => l.id === this.currentLink.linkId)
+    return this.routeData.links.find((l) => l.id === this.currentLink!.linkId)
   }
 
   private getNextLinkData() {
     const currentLinkIndex = this.routeData.links.findIndex(
-      (l) => l.id === this.currentLink.linkId
+      (l) => l.id === this.currentLink!.linkId
     )
     return currentLinkIndex < 0
       ? null
@@ -97,7 +98,7 @@ export default class TripProgress {
 
   private isFinalLink() {
     const finalLink = this.routeData.links[this.routeData.links.length - 1]
-    return this.currentLink.linkId === finalLink.id
+    return this.currentLink!.linkId === finalLink.id
   }
 }
 

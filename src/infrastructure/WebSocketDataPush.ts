@@ -1,7 +1,7 @@
 import { Server as HttpServer } from "http"
 import { Server } from "ws"
 
-import { TripId, Coordinates, ETA } from "../domain/model"
+import { Coordinates, ETA } from "../domain/model"
 import DataPush from "../services/interfaces/DataPush"
 
 export default class WebSocketDataPush implements DataPush {
@@ -15,11 +15,11 @@ export default class WebSocketDataPush implements DataPush {
     })
   }
 
-  pushLocation(tripId: TripId, location: Coordinates) {
+  pushLocation(tripId: string, location: Coordinates) {
     this.pushData({ location })
   }
 
-  pushETAs(tripId: TripId, arrival: ETA[]) {
+  pushETAs(tripId: string, arrival: ETA[]) {
     this.pushData({ arrival })
   }
 

@@ -8,7 +8,7 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
     const { tripId, linkId, travelledTime } = record
     console.log(`${linkId} travelled time: ${travelledTime!}`)
     await this.TripLinkModel.create({
-      tripId: tripId.tripId,
+      tripId,
       linkId,
       travelledTime: travelledTime!,
     })

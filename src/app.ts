@@ -12,13 +12,13 @@ export default function createApp(
   dataPush: DataPush,
   operationalDb: OperationalDbContext
 ) {
+  const tripsTracker = new TripsTracker(pubsub, operationalDb)
+
   const app = express()
 
   app.use(cors())
   app.use(express.json())
-  app.use(createRouter(pubsub, operationalDb))
-
-  const tripsTracker = new TripsTracker(pubsub, operationalDb)
+  app.use(createRouter(tripsTracker, pubsub, operationalDb))
 
   pubsub.onLocationUpdated((evt) => {
     dataPush.pushLocation(evt.tripId, evt.location)

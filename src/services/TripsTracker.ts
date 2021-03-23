@@ -1,60 +1,74 @@
 import PubSub from "./interfaces/PubSub"
 import TripProgress from "../domain/TripProgress"
-import { Coordinates, TripId, TripLink } from "../domain/model"
+import { Coordinates, Trip, TripLink } from "../domain/model"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
+import { generateGUID } from "../common/helpers"
+import RouteDAO from "./interfaces/dao/RouteDAO"
+import TripDAO from "./interfaces/dao/TripDAO"
+import TripLinkDAO from "./interfaces/dao/TripLinkDAO"
 
 export default class TripsTracker {
-  private tripProgressById = new Map<TripId, TripProgress>()
+  private tripProgressById = new Map<string, TripProgress>()
+  private routeDao: RouteDAO
+  private tripDao: TripDAO
+  private tripLinkDao: TripLinkDAO
 
-  constructor(
-    private pubsub: PubSub,
-    private operationalDb: OperationalDbContext
-  ) {}
+  constructor(private pubsub: PubSub, operationalDb: OperationalDbContext) {
+    this.routeDao = operationalDb.getRouteDAO()
+    this.tripDao = operationalDb.getTripDAO()
+    this.tripLinkDao = operationalDb.getTripLinkDAO()
+  }
 
-  async updateLocation(tripId: TripId, location: Coordinates, time: Date) {
-    const progress = await this.initOrUpdateTripProgress(tripId, location, time)
+  async startTrip(info: {
+    routeId: string
+    scheduledStart: string
+    dayId: number
+  }) {
+    const { routeId, scheduledStart, dayId } = info
+    const routeData = await this.routeDao.findById(routeId)
+    if (!routeData) {
+      throw new Error(`Data not found for route ${routeId}.`)
+    }
+
+    // create new trip
+    const tripId = generateGUID()
+    const trip = new Trip(tripId, routeId, scheduledStart, dayId)
+    await this.tripDao.add(trip)
+
+    // start tracking trip's progress
+    const progress = new TripProgress(routeData)
+    this.tripProgressById.set(tripId, progress)
+
+    return tripId
+  }
+
+  async updateLocation(tripId: string, location: Coordinates, time: Date) {
+    const prevProgress = this.tripProgressById.get(tripId)
+    if (!prevProgress) {
+      throw new Error(`No progress found for trip ${tripId}.`)
+    }
+
+    const progress = prevProgress.proceedTo(location, time)
+    this.tripProgressById.set(tripId, progress)
+
     if (progress.isEnded) {
       // TODO: emit "LinkEnded" then "TripEnded"
-      console.log(`Link ended: ${progress.currentLink.linkId}`)
+      console.log(`Link ended: ${progress.currentLink!.linkId}`)
       console.log(`Trip ended!!!`)
       this.tripProgressById.delete(tripId)
-    } else if (progress.currentLink.isEnded) {
-      const { linkId, travelledTime } = progress.currentLink
+    } else if (progress.currentLink!.isEnded) {
+      const { linkId, travelledTime } = progress.currentLink!
 
       // save link travelled time into database
       const record = new TripLink(tripId, linkId)
       record.travelledTime = Math.round(travelledTime / 1000)
-      await this.operationalDb.getTripLinkDAO().add(record)
+      await this.tripLinkDao.add(record)
     } else {
-      const { travelledTime, remainingDistance } = progress.currentLink
+      const { travelledTime, remainingDistance } = progress.currentLink!
       // TODO: emit "MidLink"
       // console.log(
       //   `${time} Travelled time: ${travelledTime}, distance to link end: ${remainingDistance}`
       // )
     }
-  }
-
-  private async initOrUpdateTripProgress(
-    tripId: TripId,
-    location: Coordinates,
-    time: Date
-  ) {
-    let progress: TripProgress
-
-    // update trip progress if it already exists, otherwise create a new trip progress
-    const prevProgress = this.tripProgressById.get(tripId)
-    if (prevProgress) {
-      progress = prevProgress.proceedTo(location, time)
-    } else {
-      const routeData = await this.operationalDb
-        .getRouteDAO()
-        .findById(tripId.routeId)
-
-      progress = new TripProgress(routeData!, time)
-    }
-
-    // save the progress and return
-    this.tripProgressById.set(tripId, progress)
-    return progress
   }
 }

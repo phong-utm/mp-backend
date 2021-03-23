@@ -1,10 +1,11 @@
 import express from "express"
 
-import { TripId } from "../domain/model"
 import PubSub, { LocationUpdatedEvent } from "../services/interfaces/PubSub"
 import OperationalDbContext from "../services/interfaces/dao/OperationalDbContext"
+import TripsTracker from "../services/TripsTracker"
 
 export default function createRouter(
+  tripsTracker: TripsTracker,
   pubsub: PubSub,
   operationalDb: OperationalDbContext
 ) {
@@ -20,8 +21,22 @@ export default function createRouter(
     }
   })
 
-  router.post("/location/:route/:trip", function (req, res) {
-    const tripId = TripId.getInstance(req.params["route"], req.params["trip"])
+  router.post("/trip", async function (req, res) {
+    const routeId = req.query["route"]!.toString()
+    const scheduledStart = req.query["start"]!.toString()
+    const dayId = parseInt(req.query["day"]!.toString())
+
+    const tripId = await tripsTracker.startTrip({
+      routeId,
+      dayId,
+      scheduledStart,
+    })
+
+    res.send({ tripId })
+  })
+
+  router.post("/location/:tripId", function (req, res) {
+    const tripId = req.params["tripId"]
     const { location, time } = req.body
     const dTime = new Date(parseInt(time))
     const event = new LocationUpdatedEvent(tripId, location, dTime)
