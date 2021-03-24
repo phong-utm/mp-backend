@@ -53,8 +53,8 @@ export default class TripsTracker {
 
     if (progress.isEnded) {
       // TODO: emit "LinkEnded" then "TripEnded"
-      console.log(`Link ended: ${progress.currentLink!.linkId}`)
-      console.log(`Trip ended!!!`)
+      // console.log(`Link ended: ${progress.currentLink!.linkId}`)
+      // console.log(`Trip ended!!!`)
       this.tripProgressById.delete(tripId)
     } else if (progress.currentLink!.isEnded) {
       const { linkId, travelledTime } = progress.currentLink!
@@ -64,7 +64,7 @@ export default class TripsTracker {
       record.travelledTime = Math.round(travelledTime / 1000)
       await this.tripLinkDao.add(record)
     } else {
-      const { travelledTime, remainingDistance } = progress.currentLink!
+      // const { travelledTime, remainingDistance } = progress.currentLink!
       // TODO: emit "MidLink"
       // console.log(
       //   `${time} Travelled time: ${travelledTime}, distance to link end: ${remainingDistance}`

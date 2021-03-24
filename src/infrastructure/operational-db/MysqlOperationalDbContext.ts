@@ -22,6 +22,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
     this.sequelize = new Sequelize(dbName, user, password, {
       host,
       dialect: "mysql",
+      logging: false,
     })
     this.tripModel = defineTripModel(this.sequelize)
     this.tripLinkModel = defineTripLinkModel(this.sequelize)

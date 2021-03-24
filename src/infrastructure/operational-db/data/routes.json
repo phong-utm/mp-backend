@@ -601,7 +601,7 @@
           }
         ],
         "length": 362.5245342855726,
-        "baseDuration": 284
+        "baseDuration": 75
       },
       {
         "id": "9e538973-fe67-4639-9a74-3e619ff50d57",
@@ -906,7 +906,7 @@
           }
         ],
         "length": 532.64071737466,
-        "baseDuration": 398
+        "baseDuration": 108
       },
       {
         "id": "a3b2ae16-627f-4419-954e-ea8074c18f29",
@@ -1010,7 +1010,7 @@
           }
         ],
         "length": 459.26883024372836,
-        "baseDuration": 360
+        "baseDuration": 102
       },
       {
         "id": "35e490ac-515f-4168-b2f0-d259d6b5f016",
@@ -1149,7 +1149,7 @@
           }
         ],
         "length": 473.9511670881148,
-        "baseDuration": 351
+        "baseDuration": 83
       },
       {
         "id": "384acad5-6f6f-4d36-ac23-2245a6b5c110",
@@ -1490,7 +1490,7 @@
           }
         ],
         "length": 419.15903049109016,
-        "baseDuration": 312
+        "baseDuration": 271
       },
       {
         "id": "d2ffb7fb-690b-4067-b279-f922b1d57288",
@@ -2004,7 +2004,7 @@
           }
         ],
         "length": 443.62356082134966,
-        "baseDuration": 324
+        "baseDuration": 80
       },
       {
         "id": "a61dda75-85be-451f-8b45-789f4c8c1710",
@@ -2118,7 +2118,7 @@
           }
         ],
         "length": 471.8263260022393,
-        "baseDuration": 349
+        "baseDuration": 115
       },
       {
         "id": "f31c24f2-bc07-432a-9e92-fa1b10e8ca3f",
@@ -2403,7 +2403,7 @@
           }
         ],
         "length": 548.4672031520263,
-        "baseDuration": 402
+        "baseDuration": 116
       },
       {
         "id": "c9528874-7ac3-46cd-b4f9-558f8d8ae25a",
@@ -2557,7 +2557,7 @@
           }
         ],
         "length": 373.27495512203393,
-        "baseDuration": 279
+        "baseDuration": 77
       },
       {
         "id": "8a509c16-bf36-43ce-8542-e0ceee3505dd",
@@ -2973,7 +2973,7 @@
           }
         ],
         "length": 1263.606293338903,
-        "baseDuration": 247
+        "baseDuration": 239
       }
     ]
   }
