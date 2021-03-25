@@ -1,10 +1,10 @@
 import { Sequelize, DataTypes, Model, ModelCtor } from "sequelize"
-import { TripAttributes } from "../../../domain/model"
+import { Trip } from "../../../domain/model"
 
-export type TripDbModel = ModelCtor<Model<TripAttributes>>
+export type TripDbModel = ModelCtor<Model<Trip>>
 
 export function defineTripModel(sequelize: Sequelize) {
-  return sequelize.define<Model<TripAttributes>>(
+  return sequelize.define<Model<Trip>>(
     "Trip",
     {
       tripId: {

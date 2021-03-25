@@ -32,8 +32,7 @@ export default class TripsTracker {
 
     // create new trip
     const tripId = generateGUID()
-    const trip = new Trip(tripId, routeId, scheduledStart, dayId)
-    await this.tripDao.add(trip)
+    await this.tripDao.add({ tripId, routeId, scheduledStart, dayId })
 
     // start tracking trip's progress
     const progress = new TripProgress(routeData)
