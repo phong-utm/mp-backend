@@ -54,6 +54,7 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
         },
         mapToModel: true,
         model: this.TripLinkModel,
+        logging: true,
       }
     )
 
@@ -73,6 +74,7 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
       },
       mapToModel: true,
       model: this.TripLinkModel,
+      logging: true,
     })
 
     return links.map(toDomainObject)
