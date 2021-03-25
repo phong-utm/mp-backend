@@ -1,5 +1,5 @@
 export { default as Coordinates } from "./Coordinates"
 export { default as ETA } from "./ETA"
 export { default as RouteData, LinkData } from "./RouteData"
-export { default as TripLink, TripLinkAttributes } from "./TripLink"
+export { default as TripLink } from "./TripLink"
 export { default as Trip, TripAttributes } from "./Trip"

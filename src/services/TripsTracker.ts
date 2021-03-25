@@ -61,11 +61,11 @@ export default class TripsTracker {
       this.tripProgressById.delete(tripId)
     } else if (progress.currentLink!.isEnded) {
       const { linkId, travelledTime } = progress.currentLink!
-
-      // save link travelled time into database
-      const record = new TripLink(tripId, linkId)
-      record.travelledTime = Math.round(travelledTime / 1000)
-      await this.tripLinkDao.add(record)
+      await this.tripLinkDao.add({
+        tripId,
+        linkId,
+        travelledTime: Math.round(travelledTime / 1000),
+      })
     } else {
       // const { travelledTime, remainingDistance } = progress.currentLink!
       // TODO: emit "MidLink"

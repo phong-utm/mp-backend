@@ -1,7 +1,7 @@
 import { Model as SequelizeModel } from "sequelize"
 
 import TripLinkDAO from "../../services/interfaces/dao/TripLinkDAO"
-import { TripLink, TripLinkAttributes } from "../../domain/model"
+import { TripLink } from "../../domain/model"
 import { TripLinkDbModel } from "./models/TripLinkDbModel"
 
 const QUERY_HISTORICAL_TRIPS = `
@@ -36,13 +36,7 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
   constructor(private TripLinkModel: TripLinkDbModel) {}
 
   async add(record: TripLink) {
-    const { tripId, linkId, travelledTime } = record
-    // console.log(`${linkId} travelled time: ${travelledTime!}`)
-    await this.TripLinkModel.create({
-      tripId,
-      linkId,
-      travelledTime: travelledTime!,
-    })
+    await this.TripLinkModel.create(record)
   }
 
   async forHistoricalTrips(
@@ -85,7 +79,7 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
   }
 }
 
-const toDomainObject = (sequelizeObj: SequelizeModel<TripLinkAttributes>) =>
+const toDomainObject = (sequelizeObj: SequelizeModel<TripLink>) =>
   ({
     tripId: sequelizeObj.getDataValue("tripId"),
     linkId: sequelizeObj.getDataValue("linkId"),

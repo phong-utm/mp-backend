@@ -1,20 +1,18 @@
 import { Sequelize, DataTypes, Model, ModelCtor } from "sequelize"
-import { TripLinkAttributes } from "../../../domain/model"
+import { TripLink } from "../../../domain/model"
 
-export type TripLinkDbModel = ModelCtor<Model<TripLinkAttributes>>
+export type TripLinkDbModel = ModelCtor<Model<TripLink>>
 
 export function defineTripLinkModel(sequelize: Sequelize) {
-  return sequelize.define<Model<TripLinkAttributes>>(
+  return sequelize.define<Model<TripLink>>(
     "TripLink",
     {
       tripId: {
         type: DataTypes.STRING,
-        // allowNull: false,
         primaryKey: true,
       },
       linkId: {
         type: DataTypes.STRING,
-        // allowNull: false,
         primaryKey: true,
       },
       travelledTime: {
@@ -24,7 +22,6 @@ export function defineTripLinkModel(sequelize: Sequelize) {
     },
     {
       timestamps: false,
-      // freezeTableName: true,
     }
   )
 }
