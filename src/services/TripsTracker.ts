@@ -1,6 +1,6 @@
 import PubSub from "./interfaces/PubSub"
 import TripProgress from "../domain/TripProgress"
-import { Coordinates, Trip, TripLink } from "../domain/model"
+import { Coordinates, Trip } from "../domain/model"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
 import { generateGUID } from "../common/helpers"
 import RouteDAO from "./interfaces/dao/RouteDAO"
@@ -54,18 +54,22 @@ export default class TripsTracker {
     const progress = prevProgress.proceedTo(location, time)
     this.tripProgressById.set(tripId, progress)
 
-    if (progress.isEnded) {
-      // TODO: emit "LinkEnded" then "TripEnded"
-      // console.log(`Link ended: ${progress.currentLink!.linkId}`)
-      // console.log(`Trip ended!!!`)
-      this.tripProgressById.delete(tripId)
-    } else if (progress.currentLink!.isEnded) {
+    if (progress.currentLink!.isEnded) {
       const { linkId, travelledTime } = progress.currentLink!
       await this.tripLinkDao.add({
         tripId,
         linkId,
         travelledTime: Math.round(travelledTime / 1000),
       })
+
+      // console.log(`Link ended: ${progress.currentLink!.linkId}`)
+      if (progress.isEnded) {
+        // TODO: emit "TripEnded"
+        // console.log(`Trip ended!!!`)
+        this.tripProgressById.delete(tripId)
+      } else {
+        // TODO: emit "LinkEnded"
+      }
     } else {
       // const { travelledTime, remainingDistance } = progress.currentLink!
       // TODO: emit "MidLink"
