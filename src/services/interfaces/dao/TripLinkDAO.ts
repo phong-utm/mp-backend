@@ -6,7 +6,8 @@ export default interface TripLinkDAO {
   forHistoricalTrips(
     routeId: string,
     scheduledStart: string,
-    dayId: number
+    dayId: number,
+    numberOfTrips: number
   ): Promise<TripLink[]>
 
   forPrevTripSameDay(

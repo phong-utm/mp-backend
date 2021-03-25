@@ -14,7 +14,7 @@ SELECT lnk.*
 	     AND scheduledStart = :start
        AND dayId < :day 
   ORDER BY dayId DESC
-     LIMIT 3
+     LIMIT :numberOfTrips
   ) trp ON lnk.tripId = trp.tripId
 `
 
@@ -42,7 +42,8 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
   async forHistoricalTrips(
     routeId: string,
     scheduledStart: string,
-    dayId: number
+    dayId: number,
+    numberOfTrips: number
   ) {
     const links = await this.TripLinkModel.sequelize!.query(
       QUERY_HISTORICAL_TRIPS,
@@ -51,10 +52,11 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
           route: routeId,
           start: scheduledStart,
           day: dayId,
+          numberOfTrips,
         },
         mapToModel: true,
         model: this.TripLinkModel,
-        logging: true,
+        // logging: true,
       }
     )
 
@@ -74,7 +76,7 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
       },
       mapToModel: true,
       model: this.TripLinkModel,
-      logging: true,
+      // logging: true,
     })
 
     return links.map(toDomainObject)

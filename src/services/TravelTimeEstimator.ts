@@ -27,7 +27,7 @@ export default class TravelTimeEstimator {
     const { routeId, scheduledStart, dayId } = info
     const [routeData, historicalTrips, prevTrip] = await Promise.all([
       this.routeDao.findById(routeId),
-      this.tripLinkDao.forHistoricalTrips(routeId, scheduledStart, dayId),
+      this.tripLinkDao.forHistoricalTrips(routeId, scheduledStart, dayId, 7),
       this.tripLinkDao.forPrevTripSameDay(routeId, scheduledStart, dayId),
     ])
 
