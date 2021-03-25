@@ -39,6 +39,9 @@ export default class TripsTracker {
     const progress = new TripProgress(routeData)
     this.tripProgressById.set(tripId, progress)
 
+    // emit event
+    this.pubsub.publishTripStarted({ tripId, info })
+
     return tripId
   }
 

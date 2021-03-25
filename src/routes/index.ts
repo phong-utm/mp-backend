@@ -1,6 +1,6 @@
 import express from "express"
 
-import PubSub, { LocationUpdatedEvent } from "../services/interfaces/PubSub"
+import PubSub from "../services/interfaces/PubSub"
 import OperationalDbContext from "../services/interfaces/dao/OperationalDbContext"
 import TripsTracker from "../services/TripsTracker"
 
@@ -38,9 +38,11 @@ export default function createRouter(
   router.post("/location/:tripId", function (req, res) {
     const tripId = req.params["tripId"]
     const { location, time } = req.body
-    const dTime = new Date(parseInt(time))
-    const event = new LocationUpdatedEvent(tripId, location, dTime)
-    pubsub.publishLocationUpdated(event)
+    pubsub.publishLocationUpdated({
+      tripId,
+      location,
+      time: new Date(parseInt(time)),
+    })
     res.sendStatus(200)
   })
 
