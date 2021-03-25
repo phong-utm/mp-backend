@@ -15,7 +15,7 @@ export default function createApp(
   operationalDb: OperationalDbContext
 ) {
   const tripsTracker = new TripsTracker(pubsub, operationalDb)
-  const travelTimeEst = new TravelTimeEstimator()
+  const travelTimeEst = new TravelTimeEstimator(operationalDb)
 
   const app = express()
 
@@ -46,7 +46,7 @@ export default function createApp(
     // as previous trips' data might not be available yet
     const todayId = getDayId(new Date())
     if (info.dayId === todayId) {
-      travelTimeEst.estimateForTrip(tripId).catch(console.error)
+      travelTimeEst.estimateForTrip(tripId, info).catch(console.error)
     }
   })
 

@@ -1,10 +1,5 @@
 import { Sequelize, DataTypes, Model, ModelCtor } from "sequelize"
-
-interface TripLinkAttributes {
-  tripId: string
-  linkId: string
-  travelledTime: number
-}
+import { TripLinkAttributes } from "../../../domain/model"
 
 export type TripLinkDbModel = ModelCtor<Model<TripLinkAttributes>>
 
