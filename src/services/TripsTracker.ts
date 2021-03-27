@@ -1,11 +1,11 @@
 import PubSub from "./interfaces/PubSub"
 import TripProgress from "../domain/TripProgress"
-import { Coordinates, Trip } from "../domain/model"
+import { Coordinates } from "../domain/model"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
-import { generateGUID } from "../common/helpers"
 import RouteDAO from "./interfaces/dao/RouteDAO"
 import TripDAO from "./interfaces/dao/TripDAO"
 import TripLinkDAO from "./interfaces/dao/TripLinkDAO"
+import { generateGUID } from "../common/helpers"
 
 export default class TripsTracker {
   private tripProgressById = new Map<string, TripProgress>()
@@ -61,20 +61,19 @@ export default class TripsTracker {
         travelledTime: Math.round(travelledTime / 1000),
       })
 
-      // console.log(`Link ended: ${progress.currentLink!.linkId}`)
       if (progress.isEnded) {
-        // TODO: emit "TripEnded"
-        // console.log(`Trip ended!!!`)
         this.tripProgressById.delete(tripId)
-      } else {
-        // TODO: emit "LinkEnded"
+        this.pubsub.publishTripEnded({ tripId })
       }
     } else {
-      // const { travelledTime, remainingDistance } = progress.currentLink!
-      // TODO: emit "MidLink"
-      // console.log(
-      //   `${time} Travelled time: ${travelledTime}, distance to link end: ${remainingDistance}`
-      // )
+      const { linkId, travelledTime, remainingDistance } = progress.currentLink!
+      this.pubsub.publishMidLink({
+        tripId,
+        linkId,
+        linkTravelledTime: travelledTime,
+        linkRemainingDistance: remainingDistance,
+        timestamp: time.getTime(),
+      })
     }
   }
 }

@@ -45,7 +45,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
   }
 
   getTripDAO(): TripDAO {
-    return new TripDAOImpl(this.tripModel)
+    return new TripDAOImpl(this.tripModel, this.getRouteDAO())
   }
 
   getTripLinkDAO(): TripLinkDAO {

@@ -34,7 +34,7 @@ export default class TravelTimeEstimator {
     const estLinkTravelTimes = routeData!.links.map(({ id: linkId }) => {
       // prettier-ignore
       const estimatedTime = this.estimateForLink(linkId, historicalTrips, prevTrip)
-      return { tripId, linkId, estimatedTime }
+      return { tripId, linkId, estimatedTime: Math.round(estimatedTime) }
     })
 
     await this.estTravelTimeDao.add(estLinkTravelTimes)

@@ -1,3 +1,4 @@
-export default class ETA {
-  constructor(readonly stop: string, readonly minutes: number) {}
+export default interface ETA {
+  readonly stop: string
+  readonly seconds: number
 }
