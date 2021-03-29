@@ -1,4 +1,4 @@
-import { EstTravelTime, RouteData, TripLink } from "../domain/model"
+import { TripLinkEstimate, RouteData, TripLink } from "../domain/model"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
 import TripLinkDAO from "./interfaces/dao/TripLinkDAO"
 
@@ -25,15 +25,13 @@ export default class TravelTimeEstimator {
       this.tripLinkDao.forPrevTripSameDay(routeId, scheduledStart, dayId),
     ])
 
-    const estLinkTravelTimes: EstTravelTime[] = routeData.links.map(
-      ({ id: linkId }) => {
-        // prettier-ignore
-        const estimatedTime = this.estimateForLink(linkId, historicalTrips, prevTrip)
-        return { tripId, linkId, estimatedTime: Math.round(estimatedTime) }
-      }
-    )
+    const result: TripLinkEstimate[] = routeData.links.map(({ id: linkId }) => {
+      // prettier-ignore
+      const estimatedTime = this.estimateForLink(linkId, historicalTrips, prevTrip)
+      return { tripId, linkId, estimatedTime: Math.round(estimatedTime) }
+    })
 
-    return estLinkTravelTimes
+    return result
   }
 
   private estimateForLink(

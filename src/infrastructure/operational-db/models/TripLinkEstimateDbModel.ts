@@ -1,11 +1,11 @@
 import { Sequelize, DataTypes, Model, ModelCtor } from "sequelize"
-import { EstTravelTime } from "../../../domain/model"
+import { TripLinkEstimate } from "../../../domain/model"
 
-export type EstTravelTimeDbModel = ModelCtor<Model<EstTravelTime>>
+export type TripLinkEstimateDbModel = ModelCtor<Model<TripLinkEstimate>>
 
-export function defineEstTravelTimeModel(sequelize: Sequelize) {
-  return sequelize.define<Model<EstTravelTime>>(
-    "EstTravelTime",
+export function defineTripLinkEstimateModel(sequelize: Sequelize) {
+  return sequelize.define<Model<TripLinkEstimate>>(
+    "TripLinkEstimate",
     {
       tripId: {
         type: DataTypes.STRING,

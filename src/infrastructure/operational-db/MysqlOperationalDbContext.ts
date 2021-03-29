@@ -5,17 +5,17 @@ import OperationalDbContext from "../../services/interfaces/dao/OperationalDbCon
 import RouteDAO from "../../services/interfaces/dao/RouteDAO"
 import TripDAO from "../../services/interfaces/dao/TripDAO"
 import TripLinkDAO from "../../services/interfaces/dao/TripLinkDAO"
-import EstTravelTimeDAO from "../../services/interfaces/dao/EstTravelTimeDAO"
+import TripLinkEstimateDAO from "../../services/interfaces/dao/TripLinkEstimateDAO"
 import RouteDAOImpl from "./RouteDAOImpl"
 import TripDAOImpl from "./TripDAOImpl"
 import TripLinkDAOImpl from "./TripLinkDAOImpl"
-import EstTravelTimeDAOImpl from "./EstTravelTimeDAOImpl"
+import TripLinkEstimateDAOImpl from "./TripLinkEstimateDAOImpl"
 import { defineTripModel, TripDbModel } from "./models/TripDbModel"
 import { defineTripLinkModel, TripLinkDbModel } from "./models/TripLinkDbModel"
 import {
-  defineEstTravelTimeModel,
-  EstTravelTimeDbModel,
-} from "./models/EstTravelTimeDbModel"
+  defineTripLinkEstimateModel,
+  TripLinkEstimateDbModel,
+} from "./models/TripLinkEstimateDbModel"
 
 const { host, name: dbName, user, password } = config.operationalDb
 
@@ -23,7 +23,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
   private sequelize: Sequelize
   private tripModel: TripDbModel
   private tripLinkModel: TripLinkDbModel
-  private estTravelTimeModel: EstTravelTimeDbModel
+  private tripLinkEstimateModel: TripLinkEstimateDbModel
 
   constructor() {
     this.sequelize = new Sequelize(dbName, user, password, {
@@ -33,7 +33,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
     })
     this.tripModel = defineTripModel(this.sequelize)
     this.tripLinkModel = defineTripLinkModel(this.sequelize)
-    this.estTravelTimeModel = defineEstTravelTimeModel(this.sequelize)
+    this.tripLinkEstimateModel = defineTripLinkEstimateModel(this.sequelize)
   }
 
   async sync() {
@@ -52,7 +52,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
     return new TripLinkDAOImpl(this.tripLinkModel)
   }
 
-  getEstTravelTimeDAO(): EstTravelTimeDAO {
-    return new EstTravelTimeDAOImpl(this.estTravelTimeModel)
+  getTripLinkEstimateDAO(): TripLinkEstimateDAO {
+    return new TripLinkEstimateDAOImpl(this.tripLinkEstimateModel)
   }
 }

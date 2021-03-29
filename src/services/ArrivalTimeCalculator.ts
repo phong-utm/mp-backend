@@ -1,16 +1,16 @@
-import EstTravelTimeDAO from "./interfaces/dao/EstTravelTimeDAO"
+import TripLinkEstimateDAO from "./interfaces/dao/TripLinkEstimateDAO"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
-import { EstTravelTime, ETA, LinkData, RouteData } from "../domain/model"
+import { TripLinkEstimate, ETA, LinkData, RouteData } from "../domain/model"
 import TravelTimeEstimator from "./TravelTimeEstimator"
 
 export default class ArrivalTimeCalculator {
   private calculatorByTrip = new Map<string, Calculator>()
   private travelTimeEstimator: TravelTimeEstimator
-  private estTravelTimeDao: EstTravelTimeDAO
+  private tripLinkEstimateDao: TripLinkEstimateDAO
 
   constructor(operationalDb: OperationalDbContext) {
     this.travelTimeEstimator = new TravelTimeEstimator(operationalDb)
-    this.estTravelTimeDao = operationalDb.getEstTravelTimeDAO()
+    this.tripLinkEstimateDao = operationalDb.getTripLinkEstimateDAO()
   }
 
   async startTrip(
@@ -24,7 +24,7 @@ export default class ArrivalTimeCalculator {
   ) {
     // prettier-ignore
     const estTravelTimes = await this.travelTimeEstimator.estimateForTrip(tripId, info)
-    this.estTravelTimeDao.add(estTravelTimes).catch(console.error)
+    this.tripLinkEstimateDao.add(estTravelTimes).catch(console.error)
 
     const calculator = new Calculator(info.routeData, estTravelTimes)
     this.calculatorByTrip.set(tripId, calculator)
@@ -50,7 +50,10 @@ export default class ArrivalTimeCalculator {
 class Calculator {
   private estTravelTimeByLink: Map<string, number>
 
-  constructor(private routeData: RouteData, estTravelTimes: EstTravelTime[]) {
+  constructor(
+    private routeData: RouteData,
+    estTravelTimes: TripLinkEstimate[]
+  ) {
     this.estTravelTimeByLink = new Map<string, number>(
       estTravelTimes.map((est) => [est.linkId, est.estimatedTime])
     )
