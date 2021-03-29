@@ -3,4 +3,5 @@ export default interface TripLink {
   linkId: string
   travelledTime: number
   arrivedAt: Date
+  headway: number | null
 }

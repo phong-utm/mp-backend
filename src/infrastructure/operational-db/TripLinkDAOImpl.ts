@@ -89,5 +89,6 @@ function toDomainObject(sequelizeObj: SequelizeModel<TripLink>): TripLink {
     linkId: sequelizeObj.getDataValue("linkId"),
     travelledTime: sequelizeObj.getDataValue("travelledTime"),
     arrivedAt: sequelizeObj.getDataValue("arrivedAt"),
+    headway: sequelizeObj.getDataValue("headway"),
   }
 }

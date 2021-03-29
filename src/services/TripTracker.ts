@@ -1,6 +1,11 @@
 import PubSub from "./interfaces/PubSub"
 import TripProgress from "../domain/TripProgress"
-import { Coordinates, RouteData, TripLinkSchedule } from "../domain/model"
+import {
+  Coordinates,
+  RouteData,
+  TripLink,
+  TripLinkSchedule,
+} from "../domain/model"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
 import RouteDAO from "./interfaces/dao/RouteDAO"
 import TripDAO from "./interfaces/dao/TripDAO"
@@ -13,6 +18,7 @@ const generateGUID = () =>
 
 export default class TripTracker {
   private tripProgressById = new Map<string, TripProgress>()
+  private prevTripById = new Map<string, TripLink[]>()
   private routeDao: RouteDAO
   private tripDao: TripDAO
   private tripLinkDao: TripLinkDAO
@@ -46,6 +52,10 @@ export default class TripTracker {
     const progress = new TripProgress(routeData)
     this.tripProgressById.set(tripId, progress)
 
+    // prettier-ignore
+    const prevTrip = await this.tripLinkDao.forPrevTripSameDay(routeId, scheduledStart, dayId)
+    this.prevTripById.set(tripId, prevTrip)
+
     // emit event
     this.pubsub.publishTripStarted({ tripId, info: tripInfo })
 
@@ -63,15 +73,19 @@ export default class TripTracker {
 
     if (progress.currentLink!.isEnded) {
       const { linkId, travelledTime } = progress.currentLink!
+      const prevArrival = getArrivedAt(this.prevTripById.get(tripId)!, linkId)
       await this.tripLinkDao.add({
         tripId,
         linkId,
         travelledTime: Math.round(travelledTime / 1000),
         arrivedAt: time,
+        headway: calculateHeadway(time, prevArrival),
       })
 
       if (progress.isEnded) {
         this.tripProgressById.delete(tripId)
+        this.prevTripById.delete(tripId)
+
         this.pubsub.publishTripEnded({
           tripId,
           timestamp: time.getTime(),
@@ -126,4 +140,15 @@ function parseTripStart(dayId: number, scheduledStart: string): Date {
   const hours = parseInt(scheduledStart.substr(0, 2))
   const minutes = parseInt(scheduledStart.substr(3, 2))
   return new Date(year, month - 1, date, hours, minutes)
+}
+
+function getArrivedAt(prevTrip: TripLink[], linkId: string) {
+  const tripLinks = prevTrip.filter((t) => t.linkId === linkId)
+  return tripLinks.length > 0 ? tripLinks[0].arrivedAt : undefined
+}
+
+function calculateHeadway(arrival: Date, prevArrival: Date | undefined) {
+  return prevArrival
+    ? Math.round((arrival.getTime() - prevArrival.getTime()) / 1000)
+    : null
 }

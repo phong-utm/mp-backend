@@ -78,6 +78,6 @@ function calculateHistTravelTime(historicalTrips: TripLink[], linkId: string) {
 }
 
 function getLatestLinkTravelTime(prevTrip: TripLink[], linkId: string) {
-  const linkTravelTimes = prevTrip.filter((t) => t.linkId === linkId)
-  return linkTravelTimes.length > 0 ? linkTravelTimes[0].travelledTime : 0
+  const tripLinks = prevTrip.filter((t) => t.linkId === linkId)
+  return tripLinks.length > 0 ? tripLinks[0].travelledTime : 0
 }
