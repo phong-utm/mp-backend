@@ -1,4 +1,4 @@
-import { Coordinates } from "../../domain/model"
+import { Coordinates, RouteData } from "../../domain/model"
 
 export interface LocationUpdatedEvent {
   readonly tripId: string
@@ -20,11 +20,13 @@ export interface TripStartedEvent {
     routeId: string
     scheduledStart: string
     dayId: number
+    routeData: RouteData // to avoid unnecessary db query
   }
 }
 
 export interface TripEndedEvent {
   readonly tripId: string
+  readonly timestamp: number
 }
 
 export default interface PubSub {

@@ -39,7 +39,13 @@ export default class TripsTracker {
     this.tripProgressById.set(tripId, progress)
 
     // emit event
-    this.pubsub.publishTripStarted({ tripId, info })
+    this.pubsub.publishTripStarted({
+      tripId,
+      info: {
+        ...info,
+        routeData,
+      },
+    })
 
     return tripId
   }
@@ -63,7 +69,10 @@ export default class TripsTracker {
 
       if (progress.isEnded) {
         this.tripProgressById.delete(tripId)
-        this.pubsub.publishTripEnded({ tripId })
+        this.pubsub.publishTripEnded({
+          tripId,
+          timestamp: time.getTime(),
+        })
       }
     } else {
       const { linkId, travelledTime, remainingDistance } = progress.currentLink!

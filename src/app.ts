@@ -6,7 +6,6 @@ import DataPush from "./services/interfaces/DataPush"
 import PubSub from "./services/interfaces/PubSub"
 import TripsTracker from "./services/TripsTracker"
 import OperationalDbContext from "./services/interfaces/dao/OperationalDbContext"
-import TravelTimeEstimator from "./services/TravelTimeEstimator"
 import ArrivalTimeCalculator from "./services/ArrivalTimeCalculator"
 import { getDayId } from "./common/helpers"
 
@@ -16,7 +15,6 @@ export default function createApp(
   operationalDb: OperationalDbContext
 ) {
   const tripsTracker = new TripsTracker(pubsub, operationalDb)
-  const travelTimeEst = new TravelTimeEstimator(operationalDb)
   const arrivalTimeCalculator = new ArrivalTimeCalculator(operationalDb)
 
   const app = express()
@@ -39,10 +37,9 @@ export default function createApp(
     const { tripId, info } = evt
 
     // don't estimate travel time when generating historical data
-    // as previous trips' data might not be available yet
     const todayId = getDayId(new Date())
     if (info.dayId === todayId) {
-      travelTimeEst.estimateForTrip(tripId, info).catch(console.error)
+      arrivalTimeCalculator.startTrip(tripId, info).catch(console.error)
     }
   })
 
@@ -57,17 +54,24 @@ export default function createApp(
 
     // no need to estimate bus arrival time when generating historical data
     if (Date.now() - eventTime < 1000) {
-      arrivalTimeCalculator
-        .calculate(tripId, linkId, linkTravelledTime, linkRemainingDistance)
-        .then((estArrivalTimes) => dataPush.pushETAs(tripId, estArrivalTimes))
-        .catch(console.error)
+      const etas = arrivalTimeCalculator.calculate(
+        tripId,
+        linkId,
+        linkTravelledTime,
+        linkRemainingDistance
+      )
+
+      dataPush.pushETAs(tripId, etas)
     }
   })
 
   pubsub.onTripEnded((evt) => {
-    const { tripId } = evt
-    arrivalTimeCalculator.endTrip(tripId)
-    dataPush.pushETAs(tripId, [])
+    const { tripId, timestamp: eventTime } = evt
+    // no need to estimate bus arrival time when generating historical data
+    if (Date.now() - eventTime < 1000) {
+      arrivalTimeCalculator.endTrip(tripId)
+      dataPush.pushETAs(tripId, [])
+    }
   })
 
   return app

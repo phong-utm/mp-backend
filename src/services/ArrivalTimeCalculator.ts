@@ -1,46 +1,49 @@
-import TripDAO from "./interfaces/dao/TripDAO"
 import EstTravelTimeDAO from "./interfaces/dao/EstTravelTimeDAO"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
 import { EstTravelTime, ETA, LinkData, RouteData } from "../domain/model"
+import TravelTimeEstimator from "./TravelTimeEstimator"
 
 export default class ArrivalTimeCalculator {
-  private estTravelTimeDao: EstTravelTimeDAO
-  private tripDao: TripDAO
   private calculatorByTrip = new Map<string, Calculator>()
+  private travelTimeEstimator: TravelTimeEstimator
+  private estTravelTimeDao: EstTravelTimeDAO
 
   constructor(operationalDb: OperationalDbContext) {
-    this.tripDao = operationalDb.getTripDAO()
+    this.travelTimeEstimator = new TravelTimeEstimator(operationalDb)
     this.estTravelTimeDao = operationalDb.getEstTravelTimeDAO()
   }
 
-  async calculate(
+  async startTrip(
+    tripId: string,
+    info: {
+      routeId: string
+      scheduledStart: string
+      dayId: number
+      routeData: RouteData
+    }
+  ) {
+    // prettier-ignore
+    const estTravelTimes = await this.travelTimeEstimator.estimateForTrip(tripId, info)
+    this.estTravelTimeDao.add(estTravelTimes).catch(console.error)
+
+    const calculator = new Calculator(info.routeData, estTravelTimes)
+    this.calculatorByTrip.set(tripId, calculator)
+  }
+
+  calculate(
     tripId: string,
     linkId: string,
     linkTravelledTime: number,
     linkRemainingDistance: number
   ) {
-    const calculator = await this.getOrCreateCalculator(tripId)
-    return calculator.calculate(
-      linkId,
-      linkTravelledTime,
-      linkRemainingDistance
-    )
+    const calculator = this.calculatorByTrip.get(tripId)
+    return calculator
+      ? calculator.calculate(linkId, linkTravelledTime, linkRemainingDistance)
+      : []
   }
 
   endTrip(tripId: string) {
     this.calculatorByTrip.delete(tripId)
-  }
-
-  private async getOrCreateCalculator(tripId: string) {
-    const existingCal = this.calculatorByTrip.get(tripId)
-    if (!existingCal) {
-      const [routeData, estTravelTimes] = await Promise.all([
-        this.tripDao.getRouteForTrip(tripId),
-        this.estTravelTimeDao.forTrip(tripId),
-      ])
-      return new Calculator(routeData, estTravelTimes)
-    }
-    return existingCal
   }
 }
 
@@ -67,7 +70,9 @@ class Calculator {
     // prettier-ignore
     let est = this.calculateRemainingTimeForCurrentLink(links[i], linkTravelledTime, linkRemainingDistance)
     result.push({ stop: links[i].to, seconds: est })
+    i++
 
+    // subsequent links
     while (i < links.length) {
       est += this.getLinkEst(links[i].id)
       result.push({ stop: links[i].to, seconds: est })

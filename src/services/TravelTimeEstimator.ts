@@ -1,19 +1,13 @@
-import { TripLink } from "../domain/model"
+import { EstTravelTime, RouteData, TripLink } from "../domain/model"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
-import EstTravelTimeDAO from "./interfaces/dao/EstTravelTimeDAO"
-import RouteDAO from "./interfaces/dao/RouteDAO"
 import TripLinkDAO from "./interfaces/dao/TripLinkDAO"
 
 export default class TravelTimeEstimator {
   private tripLinkDao: TripLinkDAO
-  private routeDao: RouteDAO
-  private estTravelTimeDao: EstTravelTimeDAO
   private filterErrors = new Map<string, number>() // linkId -> Kalman filter error
 
   constructor(operationalDb: OperationalDbContext) {
     this.tripLinkDao = operationalDb.getTripLinkDAO()
-    this.routeDao = operationalDb.getRouteDAO()
-    this.estTravelTimeDao = operationalDb.getEstTravelTimeDAO()
   }
 
   async estimateForTrip(
@@ -22,22 +16,24 @@ export default class TravelTimeEstimator {
       routeId: string
       scheduledStart: string
       dayId: number
+      routeData: RouteData
     }
   ) {
-    const { routeId, scheduledStart, dayId } = info
-    const [routeData, historicalTrips, prevTrip] = await Promise.all([
-      this.routeDao.findById(routeId),
+    const { routeId, scheduledStart, dayId, routeData } = info
+    const [historicalTrips, prevTrip] = await Promise.all([
       this.tripLinkDao.forHistoricalTrips(routeId, scheduledStart, dayId, 7),
       this.tripLinkDao.forPrevTripSameDay(routeId, scheduledStart, dayId),
     ])
 
-    const estLinkTravelTimes = routeData!.links.map(({ id: linkId }) => {
-      // prettier-ignore
-      const estimatedTime = this.estimateForLink(linkId, historicalTrips, prevTrip)
-      return { tripId, linkId, estimatedTime: Math.round(estimatedTime) }
-    })
+    const estLinkTravelTimes: EstTravelTime[] = routeData.links.map(
+      ({ id: linkId }) => {
+        // prettier-ignore
+        const estimatedTime = this.estimateForLink(linkId, historicalTrips, prevTrip)
+        return { tripId, linkId, estimatedTime: Math.round(estimatedTime) }
+      }
+    )
 
-    await this.estTravelTimeDao.add(estLinkTravelTimes)
+    return estLinkTravelTimes
   }
 
   private estimateForLink(
