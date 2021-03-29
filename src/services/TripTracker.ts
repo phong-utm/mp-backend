@@ -5,9 +5,12 @@ import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
 import RouteDAO from "./interfaces/dao/RouteDAO"
 import TripDAO from "./interfaces/dao/TripDAO"
 import TripLinkDAO from "./interfaces/dao/TripLinkDAO"
-import { generateGUID } from "../common/helpers"
 
-export default class TripsTracker {
+const generateGUID = () =>
+  Math.random().toString(36).substring(2, 15) +
+  Math.random().toString(36).substring(2, 15)
+
+export default class TripTracker {
   private tripProgressById = new Map<string, TripProgress>()
   private routeDao: RouteDAO
   private tripDao: TripDAO

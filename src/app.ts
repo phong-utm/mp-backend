@@ -4,31 +4,34 @@ import cors from "cors"
 import createRouter from "./routes"
 import DataPush from "./services/interfaces/DataPush"
 import PubSub from "./services/interfaces/PubSub"
-import TripsTracker from "./services/TripsTracker"
+import TripTracker from "./services/TripTracker"
 import OperationalDbContext from "./services/interfaces/dao/OperationalDbContext"
 import ArrivalTimeCalculator from "./services/ArrivalTimeCalculator"
-import { getDayId } from "./common/helpers"
+
+const getDayId = (d: Date) => {
+  return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate()
+}
 
 export default function createApp(
   pubsub: PubSub,
   dataPush: DataPush,
   operationalDb: OperationalDbContext
 ) {
-  const tripsTracker = new TripsTracker(pubsub, operationalDb)
+  const tripTracker = new TripTracker(pubsub, operationalDb)
   const arrivalTimeCalculator = new ArrivalTimeCalculator(operationalDb)
 
   const app = express()
 
   app.use(cors())
   app.use(express.json())
-  app.use(createRouter(tripsTracker, pubsub, operationalDb))
+  app.use(createRouter(tripTracker, pubsub, operationalDb))
 
   pubsub.onLocationUpdated((evt) => {
     dataPush.pushLocation(evt.tripId, evt.location)
   })
 
   pubsub.onLocationUpdated((evt) => {
-    tripsTracker
+    tripTracker
       .updateLocation(evt.tripId, evt.location, evt.time)
       .catch(console.error)
   })

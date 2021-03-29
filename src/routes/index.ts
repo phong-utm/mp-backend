@@ -2,10 +2,10 @@ import express from "express"
 
 import PubSub from "../services/interfaces/PubSub"
 import OperationalDbContext from "../services/interfaces/dao/OperationalDbContext"
-import TripsTracker from "../services/TripsTracker"
+import TripTracker from "../services/TripTracker"
 
 export default function createRouter(
-  tripsTracker: TripsTracker,
+  tripTracker: TripTracker,
   pubsub: PubSub,
   operationalDb: OperationalDbContext
 ) {
@@ -26,7 +26,7 @@ export default function createRouter(
     const scheduledStart = req.query["start"]!.toString()
     const dayId = parseInt(req.query["day"]!.toString())
 
-    const tripId = await tripsTracker.startTrip({
+    const tripId = await tripTracker.startTrip({
       routeId,
       dayId,
       scheduledStart,
