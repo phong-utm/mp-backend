@@ -68,6 +68,7 @@ export default class TripTracker {
         tripId,
         linkId,
         travelledTime: Math.round(travelledTime / 1000),
+        actualArrival: time,
       })
 
       if (progress.isEnded) {

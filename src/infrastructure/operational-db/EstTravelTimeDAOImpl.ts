@@ -22,9 +22,12 @@ export default class EstTravelTimeDAOImpl implements EstTravelTimeDAO {
   }
 }
 
-const toDomainObject = (sequelizeObj: SequelizeModel<EstTravelTime>) =>
-  ({
+function toDomainObject(
+  sequelizeObj: SequelizeModel<EstTravelTime>
+): EstTravelTime {
+  return {
     tripId: sequelizeObj.getDataValue("tripId"),
     linkId: sequelizeObj.getDataValue("linkId"),
     estimatedTime: sequelizeObj.getDataValue("estimatedTime"),
-  } as EstTravelTime)
+  }
+}

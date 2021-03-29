@@ -83,9 +83,11 @@ export default class TripLinkDAOImpl implements TripLinkDAO {
   }
 }
 
-const toDomainObject = (sequelizeObj: SequelizeModel<TripLink>) =>
-  ({
+function toDomainObject(sequelizeObj: SequelizeModel<TripLink>): TripLink {
+  return {
     tripId: sequelizeObj.getDataValue("tripId"),
     linkId: sequelizeObj.getDataValue("linkId"),
     travelledTime: sequelizeObj.getDataValue("travelledTime"),
-  } as TripLink)
+    actualArrival: sequelizeObj.getDataValue("actualArrival"),
+  }
+}

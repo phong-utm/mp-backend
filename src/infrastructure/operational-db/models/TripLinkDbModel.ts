@@ -19,6 +19,10 @@ export function defineTripLinkModel(sequelize: Sequelize) {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      actualArrival: {
+        type: DataTypes.DATE,
+        allowNull: false,
+      },
     },
     {
       timestamps: false,
