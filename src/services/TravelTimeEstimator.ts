@@ -25,11 +25,16 @@ export default class TravelTimeEstimator {
       this.tripLinkDao.forPrevTripSameDay(routeId, scheduledStart, dayId),
     ])
 
-    const result: TripLinkEstimate[] = routeData.links.map(({ id: linkId }) => {
-      // prettier-ignore
-      const estimatedTime = this.estimateForLink(linkId, historicalTrips, prevTrip)
-      return { tripId, linkId, estimatedTime: Math.round(estimatedTime) }
-    })
+    const result: TripLinkEstimate[] = routeData.links.map(
+      ({ id: linkId, baseDuration }) => {
+        const estimatedTime =
+          historicalTrips.length > 0
+            ? this.estimateForLink(linkId, historicalTrips, prevTrip)
+            : baseDuration
+
+        return { tripId, linkId, estimatedTime }
+      }
+    )
 
     return result
   }
@@ -54,7 +59,7 @@ export default class TravelTimeEstimator {
     const result = filterGain * avgHistTravelTime + (1 - filterGain) * latestLinkTravelTime
 
     this.filterErrors.set(linkId, filterGain * travelTimeVar)
-    return result
+    return Math.round(result)
   }
 }
 
