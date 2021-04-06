@@ -17,7 +17,11 @@ export default function createRouter(
     if (!routeData) {
       res.sendStatus(404)
     } else {
-      res.send(routeData)
+      res.send({
+        ...routeData,
+        drivers: [...Array(4)].map((_, index) => `${routeId}${index + 1}`),
+        centerLocation: { lat: 3.2177884212938914, lng: 101.58162463363506 },
+      })
     }
   })
 

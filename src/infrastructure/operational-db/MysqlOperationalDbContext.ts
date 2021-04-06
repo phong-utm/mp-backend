@@ -22,6 +22,7 @@ import {
   defineTripLinkScheduleModel,
   TripLinkScheduleDbModel,
 } from "./models/TripLinkScheduleDbModel"
+// import { defineRouteModel, RouteDbModel } from "./models/RouteDbModel"
 
 const { host, name: dbName, user, password } = config.operationalDb
 
@@ -31,6 +32,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
   private tripLinkModel: TripLinkDbModel
   private tripLinkEstimateModel: TripLinkEstimateDbModel
   private tripLinkScheduleModel: TripLinkScheduleDbModel
+  // private routeModel: RouteDbModel
 
   constructor() {
     this.sequelize = new Sequelize(dbName, user, password, {
@@ -42,6 +44,7 @@ export default class MysqlOperationalDbContext implements OperationalDbContext {
     this.tripLinkModel = defineTripLinkModel(this.sequelize)
     this.tripLinkEstimateModel = defineTripLinkEstimateModel(this.sequelize)
     this.tripLinkScheduleModel = defineTripLinkScheduleModel(this.sequelize)
+    // this.routeModel = defineRouteModel(this.sequelize)
   }
 
   async sync() {
