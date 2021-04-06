@@ -25,11 +25,13 @@ export default function createRouter(
     const routeId = req.query["route"]!.toString()
     const scheduledStart = req.query["start"]!.toString()
     const dayId = parseInt(req.query["day"]!.toString())
+    const driver = req.query["driver"]!.toString()
 
     const tripId = await tripTracker.startTrip({
       routeId,
       dayId,
       scheduledStart,
+      driver,
     })
 
     res.send({ tripId })

@@ -23,6 +23,10 @@ export function defineTripModel(sequelize: Sequelize) {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      driver: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
     },
     {
       timestamps: false,

@@ -35,8 +35,9 @@ export default class TripTracker {
     routeId: string
     scheduledStart: string
     dayId: number
+    driver: string
   }) {
-    const { routeId, scheduledStart, dayId } = info
+    const { routeId, scheduledStart, dayId, driver } = info
     const routeData = await this.routeDao.findById(routeId)
     if (!routeData) {
       throw new Error(`Data not found for route ${routeId}.`)
@@ -45,7 +46,7 @@ export default class TripTracker {
 
     // create new trip
     const tripId = generateGUID()
-    await this.tripDao.add({ tripId, routeId, scheduledStart, dayId })
+    await this.tripDao.add({ tripId, routeId, scheduledStart, dayId, driver })
     await this.tripLinkScheduleDao.add(calculateTripSchedule(tripId, tripInfo))
 
     // start tracking trip's progress
