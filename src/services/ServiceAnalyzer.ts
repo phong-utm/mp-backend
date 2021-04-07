@@ -27,7 +27,7 @@ export default class ServiceAnalyzer {
       this.analyticsDao.calculateOTPforMonth(monthId),
     ])
 
-    const result = {
+    const overallResult = {
       period,
       month: monthName,
       ha,
@@ -35,17 +35,37 @@ export default class ServiceAnalyzer {
       otp,
     }
 
-    await this.analyticsDb.getFactOverallMonthDAO().upsert(result)
+    await this.analyticsDb.getFactOverallMonthDAO().upsert(overallResult)
 
-    return result
+    const [haByRoute, ewtByRoute, otpByRoute] = await Promise.all([
+      this.analyticsDao.calculateHAbyRouteForMonth(monthId),
+      this.analyticsDao.calculateEWTbyRouteForMonth(monthId),
+      this.analyticsDao.calculateOTPbyRouteForMonth(monthId),
+    ])
 
-    //   const haByRoute = await this.analyticsDao.calculateHAbyRouteForMonth(month)
-    // const ewtByRoute = await this.analyticsDao.calculateEWTbyRouteForMonth(month)
-    // const otpByRoute = await this.analyticsDao.calculateOTPbyRouteForMonth(month)
+    const byRouteResult = Object.keys(haByRoute).map((route) => ({
+      period,
+      month: monthName,
+      route,
+      ha: haByRoute[route],
+      ewt: ewtByRoute[route],
+      otp: otpByRoute[route],
+    }))
+
+    await Promise.all(
+      byRouteResult.map((record) =>
+        this.analyticsDb.getFactRouteMonthDAO().upsert(record)
+      )
+    )
 
     //   const haByDriver = await this.analyticsDao.calculateHAbyDriverForMonth(month)
     // const ewtByDriver = await this.analyticsDao.calculateEWTbyDriverForMonth(month)
     // const otpByDriver = await this.analyticsDao.calculateOTPbyDriverForMonth(month)
+
+    return {
+      overall: overallResult,
+      byRoute: byRouteResult,
+    }
   }
 
   async processPeriod(period: string) {}
