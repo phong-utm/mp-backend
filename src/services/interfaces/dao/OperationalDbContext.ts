@@ -1,3 +1,4 @@
+import AnalyticsDAO from "./AnalyticsDAO"
 import RouteDAO from "./RouteDAO"
 import TripDAO from "./TripDAO"
 import TripLinkDAO from "./TripLinkDAO"
@@ -10,4 +11,5 @@ export default interface OperationalDbContext {
   getTripLinkDAO(): TripLinkDAO
   getTripLinkEstimateDAO(): TripLinkEstimateDAO
   getTripLinkScheduleDAO(): TripLinkScheduleDAO
+  getAnalyticsDAO(): AnalyticsDAO
 }

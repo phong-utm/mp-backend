@@ -3,9 +3,11 @@ import express from "express"
 import PubSub from "../services/interfaces/PubSub"
 import OperationalDbContext from "../services/interfaces/dao/OperationalDbContext"
 import TripTracker from "../services/TripTracker"
+import ServiceAnalyzer from "../services/ServiceAnalyzer"
 
 export default function createRouter(
   tripTracker: TripTracker,
+  serviceAnalyzer: ServiceAnalyzer,
   pubsub: PubSub,
   operationalDb: OperationalDbContext
 ) {
@@ -50,6 +52,16 @@ export default function createRouter(
       time: new Date(parseInt(time)),
     })
     res.sendStatus(200)
+  })
+
+  router.post("/analytics", async function (req, res) {
+    if (req.query["month"]) {
+      const monthId = parseInt(req.query["month"].toString())
+      const result = await serviceAnalyzer.processMonth(monthId)
+      res.send(result)
+    } else {
+      res.sendStatus(400)
+    }
   })
 
   return router

@@ -15,6 +15,12 @@ const config = {
     user: getRequiredParam("OPERATIONAL_DB_USER"),
     password: getRequiredParam("OPERATIONAL_DB_PASSWORD"),
   },
+  analyticsDb: {
+    host: getRequiredParam("ANALYTICS_DB_HOST"),
+    name: getRequiredParam("ANALYTICS_DB_NAME"),
+    user: getRequiredParam("ANALYTICS_DB_USER"),
+    password: getRequiredParam("ANALYTICS_DB_PASSWORD"),
+  },
 }
 
 export default config
