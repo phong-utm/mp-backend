@@ -6,4 +6,8 @@ export default interface AnalyticsDAO {
   calculateHAbyRouteForMonth(monthId: number): Promise<Record<string, number>>
   calculateEWTbyRouteForMonth(monthId: number): Promise<Record<string, number>>
   calculateOTPbyRouteForMonth(monthId: number): Promise<Record<string, number>>
+
+  calculateOTPbyDriverForMonth(
+    monthId: number
+  ): Promise<Array<{ route: string; driver: string; otp: number }>>
 }

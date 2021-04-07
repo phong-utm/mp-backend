@@ -61,6 +61,18 @@ SELECT trp.routeId AS route, count(if((timediff(lnk.arrivedAt, sch.scheduledArri
  GROUP BY trp.routeId   
 `
 
+const QUERY_OTP_BY_DRIVER = `
+SELECT trp.routeId AS route, trp.driver, count(if((timediff(lnk.arrivedAt, sch.scheduledArrival)) BETWEEN -150 AND 300, 1, NULL)) / count(1) AS metric
+  FROM TripLinks lnk
+  JOIN Trips trp
+    ON lnk.tripId = trp.tripId
+   AND dayId div 100 = :monthId
+  JOIN TripLinkSchedule sch
+    ON sch.tripId = lnk.tripId
+   AND sch.linkId = lnk.linkId
+ GROUP BY trp.routeId, trp.driver
+`
+
 function calculateHA(metric: number | string) {
   const headwayStdDev = typeof metric === "number" ? metric : parseFloat(metric)
   const meanExpectedHeadway = 15 * 60 // 15 mins
@@ -161,6 +173,27 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
 
     const result: Record<string, number> = {}
     otpByRoute.forEach((r) => (result[r["route"]] = calculateOTP(r["metric"])))
+    return result
+  }
+
+  async calculateOTPbyDriverForMonth(monthId: number) {
+    const otpByDriver: any[] = await this.sequelize.query(QUERY_OTP_BY_DRIVER, {
+      replacements: {
+        monthId,
+      },
+      type: QueryTypes.SELECT,
+      // plain: true,
+    })
+
+    const result: Array<{
+      route: string
+      driver: string
+      otp: number
+    }> = otpByDriver.map((r) => ({
+      route: r["route"],
+      driver: r["driver"],
+      otp: calculateOTP(r["metric"]),
+    }))
     return result
   }
 }

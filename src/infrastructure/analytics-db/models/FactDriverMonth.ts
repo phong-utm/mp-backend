@@ -1,19 +1,18 @@
 import { Sequelize, Model, DataTypes } from "sequelize"
 
-import { FactRouteMonthAttributes } from "../../../services/interfaces/dao/AnalyticsDbContext"
+import { FactDriverMonthAttributes } from "../../../services/interfaces/dao/AnalyticsDbContext"
 
 // prettier-ignore
-export class FactRouteMonth extends Model<FactRouteMonthAttributes> implements FactRouteMonthAttributes {
+export class FactDriverMonth extends Model<FactDriverMonthAttributes> implements FactDriverMonthAttributes {
   public period!: string
   public month!: string
   public route!: string
-  public ha!: number
-  public ewt!: number
+  public driver!: string
   public otp!: number
 }
 
-export function initFactRouteMonthModel(sequelize: Sequelize) {
-  FactRouteMonth.init(
+export function initFactDriverMonthModel(sequelize: Sequelize) {
+  FactDriverMonth.init(
     {
       period: {
         type: DataTypes.STRING(7),
@@ -27,13 +26,9 @@ export function initFactRouteMonthModel(sequelize: Sequelize) {
         type: DataTypes.STRING(20),
         primaryKey: true,
       },
-      ha: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
-      },
-      ewt: {
-        type: DataTypes.FLOAT,
-        allowNull: false,
+      driver: {
+        type: DataTypes.STRING(50),
+        primaryKey: true,
       },
       otp: {
         type: DataTypes.FLOAT,

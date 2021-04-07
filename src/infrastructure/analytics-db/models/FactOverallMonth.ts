@@ -15,11 +15,11 @@ export function initFactOverallMonthModel(sequelize: Sequelize) {
   FactOverallMonth.init(
     {
       period: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(7),
         primaryKey: true,
       },
       month: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(3),
         primaryKey: true,
       },
       ha: {
