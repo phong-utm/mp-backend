@@ -37,7 +37,7 @@ export function initFactOverallMonthModel(sequelize: Sequelize) {
     },
     {
       sequelize,
-      timestamps: false,
+      // timestamps: false,
       freezeTableName: true,
     }
   )

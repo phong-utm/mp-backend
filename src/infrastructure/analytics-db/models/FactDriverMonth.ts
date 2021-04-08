@@ -37,7 +37,7 @@ export function initFactDriverMonthModel(sequelize: Sequelize) {
     },
     {
       sequelize,
-      timestamps: false,
+      // timestamps: false,
       freezeTableName: true,
     }
   )

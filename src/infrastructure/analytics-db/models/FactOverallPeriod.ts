@@ -32,7 +32,7 @@ export function initFactOverallPeriodModel(sequelize: Sequelize) {
     },
     {
       sequelize,
-      timestamps: false,
+      // timestamps: false,
       freezeTableName: true,
     }
   )
