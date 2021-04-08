@@ -10,4 +10,8 @@ export default interface AnalyticsDAO {
   calculateOTPbyDriverForMonth(
     monthId: number
   ): Promise<Array<{ route: string; driver: string; otp: number }>>
+
+  calculateHAforPeriod(period: string): Promise<number>
+  calculateEWTforPeriod(period: string): Promise<number>
+  calculateOTPforPeriod(period: string): Promise<number>
 }

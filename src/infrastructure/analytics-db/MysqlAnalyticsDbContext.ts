@@ -5,6 +5,7 @@ import AnalyticsDbContext, {
   FactDAO,
   FactDriverMonthAttributes,
   FactOverallMonthAttributes,
+  FactOverallPeriodAttributes,
   FactRouteMonthAttributes,
 } from "../../services/interfaces/dao/AnalyticsDbContext"
 import {
@@ -19,6 +20,10 @@ import {
   FactDriverMonth,
   initFactDriverMonthModel,
 } from "./models/FactDriverMonth"
+import {
+  initFactOverallPeriodModel,
+  FactOverallPeriod,
+} from "./models/FactOverallPeriod"
 
 const { host, name: dbName, user, password } = config.analyticsDb
 
@@ -35,6 +40,7 @@ export default class MysqlAnalyticsDbContext implements AnalyticsDbContext {
     initFactOverallMonthModel(this.sequelize)
     initFactRouteMonthModel(this.sequelize)
     initFactDriverMonthModel(this.sequelize)
+    initFactOverallPeriodModel(this.sequelize)
   }
 
   async sync() {
@@ -51,6 +57,10 @@ export default class MysqlAnalyticsDbContext implements AnalyticsDbContext {
 
   getFactDriverMonthDAO() {
     return new FactDriverMonthDAO()
+  }
+
+  getFactOverallPeriodDAO() {
+    return new FactOverallPeriodDAO()
   }
 }
 
@@ -69,5 +79,11 @@ class FactRouteMonthDAO implements FactDAO<FactRouteMonthAttributes> {
 class FactDriverMonthDAO implements FactDAO<FactDriverMonthAttributes> {
   async upsert(record: FactDriverMonthAttributes) {
     await FactDriverMonth.upsert(record)
+  }
+}
+
+class FactOverallPeriodDAO implements FactDAO<FactOverallPeriodAttributes> {
+  async upsert(record: FactOverallPeriodAttributes) {
+    await FactOverallPeriod.upsert(record)
   }
 }

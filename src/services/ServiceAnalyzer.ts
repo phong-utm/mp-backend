@@ -87,7 +87,28 @@ export default class ServiceAnalyzer {
     }
   }
 
-  async processPeriod(period: string) {}
+  async processPeriod(period: string) {
+    // overall analytics for the month
+    const [ha, ewt, otp] = await Promise.all([
+      this.analyticsDao.calculateHAforPeriod(period),
+      this.analyticsDao.calculateEWTforPeriod(period),
+      this.analyticsDao.calculateOTPforPeriod(period),
+    ])
+
+    const overallResult = {
+      period,
+      ha,
+      ewt,
+      otp,
+    }
+
+    // save analytics results into the database
+    await this.analyticsDb.getFactOverallPeriodDAO().upsert(overallResult)
+
+    return {
+      overall: overallResult,
+    }
+  }
 
   async processAfterTrip(month: number, routeId: string, driver: string) {}
 }

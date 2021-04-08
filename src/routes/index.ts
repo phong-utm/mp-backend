@@ -59,6 +59,10 @@ export default function createRouter(
       const monthId = parseInt(req.query["month"].toString())
       const result = await serviceAnalyzer.processMonth(monthId)
       res.send(result)
+    } else if (req.query["period"]) {
+      const period = req.query["period"].toString()
+      const result = await serviceAnalyzer.processPeriod(period)
+      res.send(result)
     } else {
       res.sendStatus(400)
     }

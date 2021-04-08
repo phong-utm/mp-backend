@@ -2,29 +2,29 @@ import { Sequelize, QueryTypes } from "sequelize"
 
 import AnalyticsDAO from "../../services/interfaces/dao/AnalyticsDAO"
 
-const QUERY_HEADWAY_STD_MONTH = `
+const QUERY_HEADWAY_STD = `
 SELECT STD(abs(lnk.headway)) AS metric
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
- WHERE dayId div 100 = :monthId
+ WHERE dayId BETWEEN :from AND :to
    AND lnk.headway IS NOT NULL
 `
-const QUERY_AWT_MONTH = `
+const QUERY_AWT = `
 SELECT SUM(headway * headway) / (2 * SUM(abs(headway)) * 60) AS metric
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
- WHERE dayId div 100 = :monthId
+ WHERE dayId BETWEEN :from AND :to
    AND lnk.headway IS NOT NULL
 `
 
-const QUERY_OTP_MONTH = `
+const QUERY_OTP = `
 SELECT count(if((timediff(lnk.arrivedAt, sch.scheduledArrival)) BETWEEN -150 AND 300, 1, NULL)) / count(1) AS metric
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
-   AND dayId div 100 = :monthId
+   AND dayId BETWEEN :from AND :to
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
@@ -90,13 +90,21 @@ function calculateOTP(metric: number | string) {
   return otp * 100 // percentage
 }
 
+function getPeriodBounds(period: string) {
+  const year = parseInt(period.substring(0, 4))
+  return period.endsWith("S1")
+    ? [year * 10000 + 101, year * 10000 + 630] // 1-Jan to 30-Jun
+    : [year * 10000 + 701, year * 10000 + 1231] // 1-Jul to 31-Dec
+}
+
 export default class AnalyticsDAOImpl implements AnalyticsDAO {
   constructor(private sequelize: Sequelize) {}
 
-  async calculateHAforMonth(monthId: number) {
-    const { metric } = await this.sequelize.query(QUERY_HEADWAY_STD_MONTH, {
+  private async calculateHAforDuration(fromDayId: number, toDayId: number) {
+    const { metric } = await this.sequelize.query(QUERY_HEADWAY_STD, {
       replacements: {
-        monthId,
+        from: fromDayId,
+        to: toDayId,
       },
       type: QueryTypes.SELECT,
       plain: true,
@@ -105,10 +113,11 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
     return calculateHA(metric)
   }
 
-  async calculateEWTforMonth(monthId: number) {
-    const { metric } = await this.sequelize.query(QUERY_AWT_MONTH, {
+  private async calculateEWTforDuration(fromDayId: number, toDayId: number) {
+    const { metric } = await this.sequelize.query(QUERY_AWT, {
       replacements: {
-        monthId,
+        from: fromDayId,
+        to: toDayId,
       },
       type: QueryTypes.SELECT,
       plain: true,
@@ -117,16 +126,44 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
     return calculateEWT(metric)
   }
 
-  async calculateOTPforMonth(monthId: number) {
-    const { metric } = await this.sequelize.query(QUERY_OTP_MONTH, {
+  private async calculateOTPforDuration(fromDayId: number, toDayId: number) {
+    const { metric } = await this.sequelize.query(QUERY_OTP, {
       replacements: {
-        monthId,
+        from: fromDayId,
+        to: toDayId,
       },
       type: QueryTypes.SELECT,
       plain: true,
     })
 
     return calculateOTP(metric)
+  }
+
+  async calculateHAforMonth(monthId: number) {
+    return this.calculateHAforDuration(monthId * 100 + 1, monthId * 100 + 31)
+  }
+
+  async calculateHAforPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateHAforDuration(fromDayId, toDayId)
+  }
+
+  async calculateEWTforMonth(monthId: number) {
+    return this.calculateEWTforDuration(monthId * 100 + 1, monthId * 100 + 31)
+  }
+
+  async calculateEWTforPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateEWTforDuration(fromDayId, toDayId)
+  }
+
+  async calculateOTPforMonth(monthId: number) {
+    return this.calculateOTPforDuration(monthId * 100 + 1, monthId * 100 + 31)
+  }
+
+  async calculateOTPforPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateOTPforDuration(fromDayId, toDayId)
   }
 
   async calculateHAbyRouteForMonth(monthId: number) {
