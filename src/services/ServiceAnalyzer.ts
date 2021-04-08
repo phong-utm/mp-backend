@@ -102,11 +102,33 @@ export default class ServiceAnalyzer {
       otp,
     }
 
+    // analytics by route
+    const [haByRoute, ewtByRoute, otpByRoute] = await Promise.all([
+      this.analyticsDao.calculateHAbyRouteForPeriod(period),
+      this.analyticsDao.calculateEWTbyRouteForPeriod(period),
+      this.analyticsDao.calculateOTPbyRouteForPeriod(period),
+    ])
+
+    const byRouteResult = Object.keys(haByRoute).map((route) => ({
+      period,
+      route,
+      ha: haByRoute[route],
+      ewt: ewtByRoute[route],
+      otp: otpByRoute[route],
+    }))
+
     // save analytics results into the database
     await this.analyticsDb.getFactOverallPeriodDAO().upsert(overallResult)
 
+    await Promise.all(
+      byRouteResult.map((record) =>
+        this.analyticsDb.getFactRoutePeriodDAO().upsert(record)
+      )
+    )
+
     return {
       overall: overallResult,
+      byRoute: byRouteResult,
     }
   }
 

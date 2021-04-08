@@ -30,6 +30,14 @@ export interface FactOverallPeriodAttributes {
   otp: number
 }
 
+export interface FactRoutePeriodAttributes {
+  period: string
+  route: string
+  ha: number
+  ewt: number
+  otp: number
+}
+
 export interface FactDAO<T> {
   upsert(record: T): Promise<void>
 }
@@ -40,4 +48,5 @@ export default interface AnalyticsDbContext {
   getFactDriverMonthDAO(): FactDAO<FactDriverMonthAttributes>
 
   getFactOverallPeriodDAO(): FactDAO<FactOverallPeriodAttributes>
+  getFactRoutePeriodDAO(): FactDAO<FactRoutePeriodAttributes>
 }

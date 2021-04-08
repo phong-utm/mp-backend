@@ -14,4 +14,8 @@ export default interface AnalyticsDAO {
   calculateHAforPeriod(period: string): Promise<number>
   calculateEWTforPeriod(period: string): Promise<number>
   calculateOTPforPeriod(period: string): Promise<number>
+
+  calculateHAbyRouteForPeriod(period: string): Promise<Record<string, number>>
+  calculateEWTbyRouteForPeriod(period: string): Promise<Record<string, number>>
+  calculateOTPbyRouteForPeriod(period: string): Promise<Record<string, number>>
 }

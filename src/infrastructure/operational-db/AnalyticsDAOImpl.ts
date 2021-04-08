@@ -35,7 +35,7 @@ SELECT trp.routeId AS route, STD(abs(lnk.headway)) AS metric
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
- WHERE dayId div 100 = :monthId
+ WHERE dayId BETWEEN :from AND :to
    AND lnk.headway IS NOT NULL
  GROUP BY trp.routeId
 `
@@ -44,7 +44,7 @@ SELECT trp.routeId AS route, SUM(headway * headway) / (2 * SUM(abs(headway)) * 6
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
- WHERE dayId div 100 = :monthId
+ WHERE dayId BETWEEN :from AND :to
    AND lnk.headway IS NOT NULL
  GROUP BY trp.routeId   
 `
@@ -54,7 +54,7 @@ SELECT trp.routeId AS route, count(if((timediff(lnk.arrivedAt, sch.scheduledArri
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
-   AND dayId div 100 = :monthId
+   AND dayId BETWEEN :from AND :to
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
@@ -66,7 +66,7 @@ SELECT trp.routeId AS route, trp.driver, count(if((timediff(lnk.arrivedAt, sch.s
   FROM TripLinks lnk
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
-   AND dayId div 100 = :monthId
+   AND dayId BETWEEN :from AND :to
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
@@ -99,6 +99,78 @@ function getPeriodBounds(period: string) {
 
 export default class AnalyticsDAOImpl implements AnalyticsDAO {
   constructor(private sequelize: Sequelize) {}
+
+  async calculateHAforMonth(monthId: number) {
+    return this.calculateHAforDuration(monthId * 100 + 1, monthId * 100 + 31)
+  }
+
+  async calculateHAforPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateHAforDuration(fromDayId, toDayId)
+  }
+
+  async calculateEWTforMonth(monthId: number) {
+    return this.calculateEWTforDuration(monthId * 100 + 1, monthId * 100 + 31)
+  }
+
+  async calculateEWTforPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateEWTforDuration(fromDayId, toDayId)
+  }
+
+  async calculateOTPforMonth(monthId: number) {
+    return this.calculateOTPforDuration(monthId * 100 + 1, monthId * 100 + 31)
+  }
+
+  async calculateOTPforPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateOTPforDuration(fromDayId, toDayId)
+  }
+
+  async calculateHAbyRouteForMonth(monthId: number) {
+    return this.calculateHAbyRouteForDuration(
+      monthId * 100 + 1,
+      monthId * 100 + 31
+    )
+  }
+
+  async calculateHAbyRouteForPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateHAbyRouteForDuration(fromDayId, toDayId)
+  }
+
+  async calculateEWTbyRouteForMonth(monthId: number) {
+    return this.calculateEWTbyRouteForDuration(
+      monthId * 100 + 1,
+      monthId * 100 + 31
+    )
+  }
+
+  async calculateEWTbyRouteForPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateEWTbyRouteForDuration(fromDayId, toDayId)
+  }
+
+  async calculateOTPbyRouteForMonth(monthId: number) {
+    return this.calculateOTPbyRouteForDuration(
+      monthId * 100 + 1,
+      monthId * 100 + 31
+    )
+  }
+
+  async calculateOTPbyRouteForPeriod(period: string) {
+    const [fromDayId, toDayId] = getPeriodBounds(period)
+    return this.calculateOTPbyRouteForDuration(fromDayId, toDayId)
+  }
+
+  async calculateOTPbyDriverForMonth(monthId: number) {
+    return this.calculateOTPbyDriverForDuration(
+      monthId * 100 + 1,
+      monthId * 100 + 31
+    )
+  }
+
+  /** PRIVATE METHODS */
 
   private async calculateHAforDuration(fromDayId: number, toDayId: number) {
     const { metric } = await this.sequelize.query(QUERY_HEADWAY_STD, {
@@ -139,42 +211,18 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
     return calculateOTP(metric)
   }
 
-  async calculateHAforMonth(monthId: number) {
-    return this.calculateHAforDuration(monthId * 100 + 1, monthId * 100 + 31)
-  }
-
-  async calculateHAforPeriod(period: string) {
-    const [fromDayId, toDayId] = getPeriodBounds(period)
-    return this.calculateHAforDuration(fromDayId, toDayId)
-  }
-
-  async calculateEWTforMonth(monthId: number) {
-    return this.calculateEWTforDuration(monthId * 100 + 1, monthId * 100 + 31)
-  }
-
-  async calculateEWTforPeriod(period: string) {
-    const [fromDayId, toDayId] = getPeriodBounds(period)
-    return this.calculateEWTforDuration(fromDayId, toDayId)
-  }
-
-  async calculateOTPforMonth(monthId: number) {
-    return this.calculateOTPforDuration(monthId * 100 + 1, monthId * 100 + 31)
-  }
-
-  async calculateOTPforPeriod(period: string) {
-    const [fromDayId, toDayId] = getPeriodBounds(period)
-    return this.calculateOTPforDuration(fromDayId, toDayId)
-  }
-
-  async calculateHAbyRouteForMonth(monthId: number) {
+  private async calculateHAbyRouteForDuration(
+    fromDayId: number,
+    toDayId: number
+  ) {
     const stdDevByRoute: any[] = await this.sequelize.query(
       QUERY_HEADWAY_STD_BY_ROUTE,
       {
         replacements: {
-          monthId,
+          from: fromDayId,
+          to: toDayId,
         },
         type: QueryTypes.SELECT,
-        // plain: true,
       }
     )
 
@@ -185,13 +233,16 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
     return result
   }
 
-  async calculateEWTbyRouteForMonth(monthId: number) {
+  private async calculateEWTbyRouteForDuration(
+    fromDayId: number,
+    toDayId: number
+  ) {
     const awtByRoute: any[] = await this.sequelize.query(QUERY_AWT_BY_ROUTE, {
       replacements: {
-        monthId,
+        from: fromDayId,
+        to: toDayId,
       },
       type: QueryTypes.SELECT,
-      // plain: true,
     })
 
     const result: Record<string, number> = {}
@@ -199,13 +250,16 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
     return result
   }
 
-  async calculateOTPbyRouteForMonth(monthId: number) {
+  private async calculateOTPbyRouteForDuration(
+    fromDayId: number,
+    toDayId: number
+  ) {
     const otpByRoute: any[] = await this.sequelize.query(QUERY_OTP_BY_ROUTE, {
       replacements: {
-        monthId,
+        from: fromDayId,
+        to: toDayId,
       },
       type: QueryTypes.SELECT,
-      // plain: true,
     })
 
     const result: Record<string, number> = {}
@@ -213,13 +267,16 @@ export default class AnalyticsDAOImpl implements AnalyticsDAO {
     return result
   }
 
-  async calculateOTPbyDriverForMonth(monthId: number) {
+  private async calculateOTPbyDriverForDuration(
+    fromDayId: number,
+    toDayId: number
+  ) {
     const otpByDriver: any[] = await this.sequelize.query(QUERY_OTP_BY_DRIVER, {
       replacements: {
-        monthId,
+        from: fromDayId,
+        to: toDayId,
       },
       type: QueryTypes.SELECT,
-      // plain: true,
     })
 
     const result: Array<{
