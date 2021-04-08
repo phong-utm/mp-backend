@@ -81,5 +81,14 @@ export default function createApp(
     }
   })
 
+  pubsub.onTripEnded((evt) => {
+    const { tripId, timestamp: eventTime } = evt
+    // when generating historical data, don't calculate service metrics after each trip
+    // (calculation is done by batches for better performance)
+    if (Date.now() - eventTime < 1000) {
+      serviceAnalyzer.processAfterTrip(tripId).catch(console.error)
+    }
+  })
+
   return app
 }

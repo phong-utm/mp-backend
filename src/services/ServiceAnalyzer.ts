@@ -1,25 +1,39 @@
 import AnalyticsDAO from "./interfaces/dao/AnalyticsDAO"
 import AnalyticsDbContext from "./interfaces/dao/AnalyticsDbContext"
 import OperationalDbContext from "./interfaces/dao/OperationalDbContext"
+import TripDAO from "./interfaces/dao/TripDAO"
 
 // prettier-ignore
 const MONTH_NAMES = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
 
+const parseMonthId = (monthId: number) => {
+  const year = Math.floor(monthId / 100)
+  const month = monthId % 100
+  const monthName = MONTH_NAMES[month - 1]
+  const period = `${year}-S${Math.ceil(month / 6)}`
+  return [monthName, period]
+}
+
+const parseDayId = (dayId: number) => {
+  const monthId = Math.floor(dayId / 100)
+  const [monthName, period] = parseMonthId(monthId)
+  return [monthId, monthName, period] as [number, string, string]
+}
+
 export default class ServiceAnalyzer {
   private analyticsDao: AnalyticsDAO
+  private tripDao: TripDAO
 
   constructor(
     operationalDb: OperationalDbContext,
     private analyticsDb: AnalyticsDbContext
   ) {
     this.analyticsDao = operationalDb.getAnalyticsDAO()
+    this.tripDao = operationalDb.getTripDAO()
   }
 
   async processMonth(monthId: number) {
-    const year = Math.floor(monthId / 100)
-    const month = monthId % 100
-    const monthName = MONTH_NAMES[month - 1]
-    const period = `${year}-S${Math.ceil(month / 6)}`
+    const [monthName, period] = parseMonthId(monthId)
 
     // overall analytics for the month
     const [ha, ewt, otp] = await Promise.all([
@@ -31,9 +45,9 @@ export default class ServiceAnalyzer {
     const overallResult = {
       period,
       month: monthName,
-      ha,
-      ewt,
-      otp,
+      ha: ha === null ? 0 : ha,
+      ewt: ewt === null ? 0 : ewt,
+      otp: otp === null ? 100 : otp,
     }
 
     // analytics by route
@@ -43,7 +57,7 @@ export default class ServiceAnalyzer {
       this.analyticsDao.calculateOTPbyRouteForMonth(monthId),
     ])
 
-    const byRouteResult = Object.keys(haByRoute).map((route) => ({
+    const byRouteResult = Object.keys(otpByRoute).map((route) => ({
       period,
       month: monthName,
       route,
@@ -97,9 +111,9 @@ export default class ServiceAnalyzer {
 
     const overallResult = {
       period,
-      ha,
-      ewt,
-      otp,
+      ha: ha === null ? 0 : ha,
+      ewt: ewt === null ? 0 : ewt,
+      otp: otp === null ? 100 : otp,
     }
 
     // analytics by route
@@ -109,7 +123,7 @@ export default class ServiceAnalyzer {
       this.analyticsDao.calculateOTPbyRouteForPeriod(period),
     ])
 
-    const byRouteResult = Object.keys(haByRoute).map((route) => ({
+    const byRouteResult = Object.keys(otpByRoute).map((route) => ({
       period,
       route,
       ha: haByRoute[route],
@@ -132,5 +146,26 @@ export default class ServiceAnalyzer {
     }
   }
 
-  async processAfterTrip(month: number, routeId: string, driver: string) {}
+  async processAfterTrip(tripId: string) {
+    const trip = await this.tripDao.findById(tripId)
+    const { routeId, dayId } = trip!
+    const [monthId, monthName, period] = parseDayId(dayId)
+
+    const [ha, ewt, otp] = await Promise.all([
+      this.analyticsDao.calculateHAforRouteForMonth(routeId, monthId),
+      this.analyticsDao.calculateEWTforRouteForMonth(routeId, monthId),
+      this.analyticsDao.calculateOTPforRouteForMonth(routeId, monthId),
+    ])
+
+    const result = {
+      period,
+      month: monthName,
+      route: routeId,
+      ha: ha === null ? 0 : ha,
+      ewt: ewt === null ? 0 : ewt,
+      otp: otp === null ? 100 : otp,
+    }
+
+    await this.analyticsDb.getFactRouteMonthDAO().upsert(result)
+  }
 }
