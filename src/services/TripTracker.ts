@@ -103,6 +103,18 @@ export default class TripTracker {
       })
     }
   }
+
+  async cleanUp() {
+    const tripsInProgress = this.tripProgressById.keys()
+    for (const tripId of tripsInProgress) {
+      console.log(`[INFO] Removing incomplete trip ${tripId}...`)
+      this.tripProgressById.delete(tripId)
+      this.prevTripById.delete(tripId)
+      this.pubsub.publishTripCancelled({ tripId })
+      await this.tripDao.delete(tripId)
+      console.log(`[INFO] Incomplete trip ${tripId} was removed.`)
+    }
+  }
 }
 
 function calculateTripSchedule(

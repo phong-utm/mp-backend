@@ -2,12 +2,14 @@ import { EventEmitter } from "ws"
 import PubSub, {
   LocationUpdatedEvent,
   MidLinkEvent,
+  TripCancelledEvent,
   TripEndedEvent,
   TripStartedEvent,
 } from "../services/interfaces/PubSub"
 
 const EVENT_TRIP_STARTED = Symbol()
 const EVENT_TRIP_ENDED = Symbol()
+const EVENT_TRIP_CANCELLED = Symbol()
 const EVENT_LOCATION_UPDATED = Symbol()
 const EVENT_MID_LINK = Symbol()
 
@@ -42,7 +44,15 @@ export default class LocalPubSub implements PubSub {
     this.emitter.emit(EVENT_TRIP_ENDED, evt)
   }
 
-  onTripEnded(handler: (evt: TripEndedEvent) => void): void {
+  onTripEnded(handler: (evt: TripEndedEvent) => void) {
     this.emitter.on(EVENT_TRIP_ENDED, handler)
+  }
+
+  publishTripCancelled(evt: TripCancelledEvent) {
+    this.emitter.emit(EVENT_TRIP_CANCELLED, evt)
+  }
+
+  onTripCancelled(handler: (evt: TripCancelledEvent) => void) {
+    this.emitter.on(EVENT_TRIP_CANCELLED, handler)
   }
 }

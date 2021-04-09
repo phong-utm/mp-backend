@@ -17,6 +17,10 @@ export default class TripDAOImpl implements TripDAO {
     return obj ? toDomainObject(obj) : undefined
   }
 
+  async delete(tripId: string) {
+    return (await this.TripModel.destroy({ where: { tripId } })) === 1
+  }
+
   // async getRouteForTrip(tripId: string) {
   //   const trip = await this.TripModel.findByPk(tripId)
   //   if (!trip) {

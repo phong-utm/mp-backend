@@ -68,5 +68,17 @@ export default function createRouter(
     }
   })
 
+  router.post("/cleanup", async function (req, res) {
+    await tripTracker.cleanUp()
+    res.sendStatus(200)
+  })
+
+  router.delete("/trip/:tripId", async function (req, res) {
+    const success = await operationalDb
+      .getTripDAO()
+      .delete(req.params["tripId"])
+    res.send({ success })
+  })
+
   return router
 }

@@ -29,14 +29,20 @@ export interface TripEndedEvent {
   readonly timestamp: number
 }
 
+export interface TripCancelledEvent {
+  readonly tripId: string
+}
+
 export default interface PubSub {
   publishTripStarted(evt: TripStartedEvent): void
   publishLocationUpdated(evt: LocationUpdatedEvent): void
   publishMidLink(evt: MidLinkEvent): void
   publishTripEnded(evt: TripEndedEvent): void
+  publishTripCancelled(evt: TripCancelledEvent): void
 
   onTripStarted(handler: (evt: TripStartedEvent) => void): void
   onLocationUpdated(handler: (evt: LocationUpdatedEvent) => void): void
   onMidLink(handler: (evt: MidLinkEvent) => void): void
   onTripEnded(handler: (evt: TripEndedEvent) => void): void
+  onTripCancelled(handler: (evt: TripCancelledEvent) => void): void
 }

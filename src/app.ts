@@ -90,5 +90,7 @@ export default function createApp(
     }
   })
 
+  pubsub.onTripCancelled((evt) => arrivalTimeCalculator.endTrip(evt.tripId))
+
   return app
 }
