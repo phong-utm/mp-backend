@@ -1,0 +1,1 @@
+rsync -a --exclude 'node_modules' --exclude '.git' --exclude 'ssh*.sh' . root@206.189.94.238:~/app

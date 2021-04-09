@@ -7,7 +7,7 @@
     "start:dev": "nodemon",
     "test": "jest --watch",
     "build": "tsc",
-    "start": "NODE_ENV=production node dist/server"
+    "start": "NODE_ENV=production node -r dotenv/config dist/server"
   },
   "dependencies": {
     "@types/sequelize": "^4.28.9",
