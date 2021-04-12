@@ -73,11 +73,22 @@ export default function createRouter(
     res.sendStatus(200)
   })
 
-  router.delete("/trip/:tripId", async function (req, res) {
-    const success = await operationalDb
-      .getTripDAO()
-      .delete(req.params["tripId"])
-    res.send({ success })
+  // for cleaning up test data
+  router.delete("/trip", async function (req, res) {
+    const tripDao = operationalDb.getTripDAO()
+    if (req.query["month"]) {
+      const monthId = parseInt(req.query["month"].toString())
+      await tripDao.deleteForMonth(monthId)
+    } else if (req.query["period"]) {
+      const period = req.query["period"].toString()
+      await tripDao.deleteForPeriod(period)
+    } else if (req.query["trip"]) {
+      const tripId = req.query["trip"].toString()
+      await tripDao.delete(tripId)
+    } else {
+      return res.sendStatus(400)
+    }
+    return res.sendStatus(200)
   })
 
   return router
