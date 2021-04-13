@@ -2,6 +2,7 @@ import express from "express"
 
 import PubSub from "../services/interfaces/PubSub"
 import OperationalDbContext from "../services/interfaces/dao/OperationalDbContext"
+import AnalyticsDbContext from "../services/interfaces/dao/AnalyticsDbContext"
 import TripTracker from "../services/TripTracker"
 import ServiceAnalyzer from "../services/ServiceAnalyzer"
 
@@ -9,7 +10,8 @@ export default function createRouter(
   tripTracker: TripTracker,
   serviceAnalyzer: ServiceAnalyzer,
   pubsub: PubSub,
-  operationalDb: OperationalDbContext
+  operationalDb: OperationalDbContext,
+  analyticsDb: AnalyticsDbContext
 ) {
   const router = express.Router()
 
@@ -82,6 +84,13 @@ export default function createRouter(
     } else if (req.query["period"]) {
       const period = req.query["period"].toString()
       await tripDao.deleteForPeriod(period)
+      await Promise.all([
+        analyticsDb.getFactDriverMonthDAO().deleteForPeriod(period),
+        analyticsDb.getFactOverallMonthDAO().deleteForPeriod(period),
+        analyticsDb.getFactOverallPeriodDAO().deleteForPeriod(period),
+        analyticsDb.getFactRouteMonthDAO().deleteForPeriod(period),
+        analyticsDb.getFactRoutePeriodDAO().deleteForPeriod(period),
+      ])
     } else if (req.query["trip"]) {
       const tripId = req.query["trip"].toString()
       await tripDao.delete(tripId)

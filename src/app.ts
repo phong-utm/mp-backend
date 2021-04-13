@@ -28,7 +28,15 @@ export default function createApp(
 
   app.use(cors())
   app.use(express.json())
-  app.use(createRouter(tripTracker, serviceAnalyzer, pubsub, operationalDb))
+  app.use(
+    createRouter(
+      tripTracker,
+      serviceAnalyzer,
+      pubsub,
+      operationalDb,
+      analyticsDb
+    )
+  )
 
   pubsub.onLocationUpdated((evt) => {
     dataPush.pushLocation(evt.tripId, evt.location)

@@ -40,6 +40,7 @@ export interface FactRoutePeriodAttributes {
 
 export interface FactDAO<T> {
   upsert(record: T): Promise<void>
+  deleteForPeriod(period: string): Promise<void>
 }
 
 export default interface AnalyticsDbContext {
