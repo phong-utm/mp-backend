@@ -25,7 +25,7 @@ SELECT count(if((timediff(lnk.arrivedAt, sch.scheduledArrival)) BETWEEN -150 AND
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
    AND dayId BETWEEN :from AND :to
-   AND lnk.linkId IN ("a3b2ae16-627f-4419-954e-ea8074c18f29", "35a25662-0c25-4431-8f86-a5dc402c355f", "bff869aa-4207-47c2-b092-8c2ac999612d")
+   AND lnk.linkId = "a3b2ae16-627f-4419-954e-ea8074c18f29"
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
@@ -56,7 +56,7 @@ SELECT trp.routeId AS route, count(if((timediff(lnk.arrivedAt, sch.scheduledArri
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
    AND dayId BETWEEN :from AND :to
-   AND lnk.linkId IN ("a3b2ae16-627f-4419-954e-ea8074c18f29", "35a25662-0c25-4431-8f86-a5dc402c355f", "bff869aa-4207-47c2-b092-8c2ac999612d")
+   AND lnk.linkId = "a3b2ae16-627f-4419-954e-ea8074c18f29"
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
@@ -69,7 +69,7 @@ SELECT trp.routeId AS route, trp.driver, count(if((timediff(lnk.arrivedAt, sch.s
   JOIN Trips trp
     ON lnk.tripId = trp.tripId
    AND dayId BETWEEN :from AND :to
-   AND lnk.linkId IN ("a3b2ae16-627f-4419-954e-ea8074c18f29", "35a25662-0c25-4431-8f86-a5dc402c355f", "bff869aa-4207-47c2-b092-8c2ac999612d")
+   AND lnk.linkId = "a3b2ae16-627f-4419-954e-ea8074c18f29"
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
@@ -102,7 +102,7 @@ SELECT count(if((timediff(lnk.arrivedAt, sch.scheduledArrival)) BETWEEN -150 AND
     ON lnk.tripId = trp.tripId
    AND routeId = :route
    AND dayId BETWEEN :from AND :to
-   AND lnk.linkId IN ("a3b2ae16-627f-4419-954e-ea8074c18f29", "35a25662-0c25-4431-8f86-a5dc402c355f", "bff869aa-4207-47c2-b092-8c2ac999612d")
+   AND lnk.linkId = "a3b2ae16-627f-4419-954e-ea8074c18f29"
   JOIN TripLinkSchedule sch
     ON sch.tripId = lnk.tripId
    AND sch.linkId = lnk.linkId
