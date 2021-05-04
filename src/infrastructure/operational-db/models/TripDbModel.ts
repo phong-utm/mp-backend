@@ -8,15 +8,15 @@ export function defineTripModel(sequelize: Sequelize) {
     "Trip",
     {
       tripId: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         primaryKey: true,
       },
       routeId: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(10),
         allowNull: false,
       },
       scheduledStart: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(5),
         allowNull: false,
       },
       dayId: {
@@ -24,7 +24,7 @@ export function defineTripModel(sequelize: Sequelize) {
         allowNull: false,
       },
       driver: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         allowNull: false,
       },
     },

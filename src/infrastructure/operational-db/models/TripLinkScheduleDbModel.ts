@@ -8,11 +8,11 @@ export function defineTripLinkScheduleModel(sequelize: Sequelize) {
     "TripLinkSchedule",
     {
       tripId: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         primaryKey: true,
       },
       linkId: {
-        type: DataTypes.STRING,
+        type: DataTypes.STRING(100),
         primaryKey: true,
       },
       scheduledArrival: {
