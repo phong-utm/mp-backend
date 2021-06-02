@@ -68,7 +68,7 @@ export default function createApp(
     } = evt
 
     // no need to estimate bus arrival time when generating historical data
-    if (Date.now() - eventTime < 1000) {
+    if (Date.now() - eventTime < 60000) {
       const etas = arrivalTimeCalculator.calculate(
         tripId,
         linkId,
@@ -83,7 +83,7 @@ export default function createApp(
   pubsub.onTripEnded((evt) => {
     const { tripId, timestamp: eventTime } = evt
     // no need to estimate bus arrival time when generating historical data
-    if (Date.now() - eventTime < 1000) {
+    if (Date.now() - eventTime < 60000) {
       arrivalTimeCalculator.endTrip(tripId)
       dataPush.pushETAs(tripId, [])
     }
@@ -93,7 +93,7 @@ export default function createApp(
     const { tripId, timestamp: eventTime } = evt
     // when generating historical data, don't calculate service metrics after each trip
     // (calculation is done by batches for better performance)
-    if (Date.now() - eventTime < 1000) {
+    if (Date.now() - eventTime < 60000) {
       serviceAnalyzer.processAfterTrip(tripId).catch(console.error)
     }
   })
